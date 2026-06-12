@@ -1,0 +1,28 @@
+# Dependências
+node_modules/
+
+# Builds
+dist/
+.next/
+out/
+build/
+
+# Cache do Turborepo
+.turbo/
+
+# Variáveis de ambiente — segredos NUNCA entram no repo
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Sistema operacional / editor
+.DS_Store
+Thumbs.db

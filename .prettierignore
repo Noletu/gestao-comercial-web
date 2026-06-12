@@ -1,0 +1,10 @@
+node_modules
+dist
+.next
+.turbo
+out
+build
+package-lock.json
+
+# Documento fundador — mantido no workflow de planejamento, não formatar aqui.
+PROJETO.md

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  // Root cause: o modo "strict" (padrão do turbo 2.x) remove variáveis de
+  // ambiente de sistema do Windows (ComSpec/SystemRoot/PATHEXT) ao rodar tasks,
+  // fazendo o npm falhar ao iniciar o shell do script — tsc/next saem com código
+  // 1 e SEM saída. "loose" repassa essas variáveis; o cache segue correto porque
+  // o hash usa o "globalEnv" abaixo.
+  "envMode": "loose",
+  "globalEnv": [
+    "NODE_ENV",
+    "PORT",
+    "DATABASE_URL",
+    "NUVEMSHOP_APP_ID",
+    "NUVEMSHOP_CLIENT_ID",
+    "NUVEMSHOP_CLIENT_SECRET"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {},
+    "typecheck": {}
+  }
+}
