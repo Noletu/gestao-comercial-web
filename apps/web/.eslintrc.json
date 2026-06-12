@@ -1,0 +1,4 @@
+{
+  "root": true,
+  "extends": ["@gestao/eslint-config/next"]
+}
