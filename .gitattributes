@@ -1,0 +1,25 @@
+# Normaliza fim de linha: tudo é texto com LF no repositório, evitando o churn
+# de LF→CRLF em time cross-plataforma (Windows/macOS/Linux).
+* text=auto eol=lf
+
+# Arquivos que devem manter CRLF mesmo no Windows.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binários: nunca aplicar normalização de fim de linha (forward-looking — um app
+# web ganhará imagens/fontes; sem isso, o git corromperia esses arquivos).
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.svg   text
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.eot   binary
+*.pdf   binary
+*.zip   binary
