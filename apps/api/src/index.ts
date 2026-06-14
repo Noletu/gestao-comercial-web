@@ -1,3 +1,5 @@
+// Carrega apps/api/.env antes de qualquer leitura de process.env (env.ts valida).
+import "dotenv/config";
 import { createApp } from "./app";
 import { env } from "./lib/env";
 
