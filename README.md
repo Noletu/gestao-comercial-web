@@ -57,13 +57,64 @@ npm run dev
 | `npm run typecheck` | Checagem de tipos (sem emitir arquivos) |
 | `npm run format`    | Formata o repositório com o Prettier    |
 
+## Banco de dados (Postgres + Prisma)
+
+O backend usa Postgres com **Row-Level Security** para isolamento multi-tenant. São
+dois roles de propósito: `app_user` (runtime, RLS aplicado) e `postgres` (owner,
+migrations/seed). Veja `apps/api/prisma/schema.prisma` e a migration inicial.
+
+### 1. Subir o Postgres
+
+**Recomendado — Docker** (`docker-compose.yml`, porta 5432):
+
+```bash
+docker compose up -d
+```
+
+**Sem Docker** — se você já tem o PostgreSQL instalado, há um script que cria um
+cluster local isolado na porta **5433** (não toca no seu Postgres principal):
+
+```bash
+# PowerShell, na raiz do repo
+./scripts/dev-db.ps1 start    # cria (se preciso) e inicia
+./scripts/dev-db.ps1 stop     # para
+./scripts/dev-db.ps1 reset    # apaga e recria do zero
+```
+
+### 2. Configurar o env do backend
+
+```bash
+# Copie o exemplo e ajuste a porta (5432 Docker / 5433 script sem Docker)
+cp apps/api/.env.example apps/api/.env
+```
+
+### 3. Migrar e popular
+
+```bash
+cd apps/api
+npm run db:migrate   # aplica o schema + o SQL de RLS
+npm run db:seed      # popula a loja do casal com dados de exemplo
+npm run db:studio    # (opcional) abre o Prisma Studio
+```
+
+### Testes de integração do banco
+
+```bash
+cd apps/api
+npm test             # isolamento RLS entre tenants + consistência ledger↔estoque
+```
+
+> Os testes **truncam** as tabelas de negócio; rode `npm run db:seed` depois para
+> repovoar. (Atenção: usam o mesmo banco de dev — ver sugestão de banco de teste
+> dedicado no histórico da issue #2.)
+
 ## Variáveis de ambiente
 
-Veja [`.env.example`](./.env.example). Hoje a API valida apenas `PORT` e
-`NODE_ENV` (esquema em `apps/api/src/lib/env.ts`); se algo estiver inválido, ela
-**falha no boot** — de propósito, para o erro aparecer no deploy e não num
-request em produção.
+Backend: [`apps/api/.env.example`](./apps/api/.env.example). A API valida o env no
+boot com Zod (`apps/api/src/lib/env.ts`); se algo estiver inválido (ex.: falta
+`DATABASE_URL` ou `ENCRYPTION_KEY`), ela **falha no boot** — de propósito, para o
+erro aparecer no deploy e não num request em produção.
 
 > **Segredos nunca entram no repositório.** `client_id`/`client_secret` da
-> Nuvemshop e a `DATABASE_URL` vivem apenas no `.env` local (ignorado pelo git)
-> e nas variáveis de ambiente do Railway.
+> Nuvemshop, a `DATABASE_URL` e a `ENCRYPTION_KEY` vivem apenas no `.env` local
+> (ignorado pelo git) e nas variáveis de ambiente do Railway.

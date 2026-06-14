@@ -1,0 +1,29 @@
+# Postgres local para desenvolvimento.
+# Sobe um banco isolado para o projeto sem instalar nada no host.
+#   docker compose up -d      → inicia
+#   docker compose down       → para (mantém os dados no volume)
+#   docker compose down -v    → para e APAGA os dados
+#
+# A migration cria um role de aplicação `app_user` (sem superusuário) que o
+# runtime usa para que o Row-Level Security seja realmente aplicado. O superusuário
+# `postgres` abaixo é usado apenas por migrations/seed (DIRECT_DATABASE_URL).
+services:
+  postgres:
+    image: postgres:18
+    container_name: gestao_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gestao_comercial
+    ports:
+      - "5432:5432"
+    volumes:
+      - gestao_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d gestao_comercial"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  gestao_pgdata:

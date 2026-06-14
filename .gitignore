@@ -10,6 +10,9 @@ build/
 # Cache do Turborepo
 .turbo/
 
+# Cluster Postgres local efêmero (fallback sem Docker — ver README)
+.devdb/
+
 # Variáveis de ambiente — segredos NUNCA entram no repo
 .env
 .env.*

@@ -1,0 +1,295 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Schema multi-tenant da Gestão Comercial.
+//
+// Princípios:
+//  - TODA tabela de negócio carrega `tenant_id` (denormalizado, mesmo quando
+//    derivável via FK) para que as policies de Row-Level Security filtrem por uma
+//    coluna direta — policies com JOIN seriam lentas e frágeis.
+//  - O Postgres é a fonte de verdade do isolamento (RLS), não só o código.
+//  - O estoque atual (inventory_level.stock) é um agregado materializado; a
+//    fonte de verdade é o ledger append-only (stock_movement).
+//
+// O SQL de RLS, os grants e o trigger de imutabilidade do ledger vivem na
+// migration inicial (editada à mão) — Prisma não os gera sozinho.
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url       = runtime (role app_user, RLS aplicado)
+  // directUrl = migrations/seed (role postgres, owner/superusuário)
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+// ───────────────────────────── RBAC ─────────────────────────────
+
+enum Role {
+  OWNER
+  STAFF
+  READ_ONLY
+}
+
+/// A loja/cliente. No MVP existe só uma (a loja do casal), mas o produto será
+/// vendido a terceiros — por isso o tenant é cidadão de primeira classe.
+model Tenant {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  memberships         Membership[]
+  products            Product[]
+  variants            Variant[]
+  locations           Location[]
+  inventoryLevels     InventoryLevel[]
+  stockMovements      StockMovement[]
+  nuvemshopConnection NuvemshopConnection?
+  syncStates          SyncState[]
+
+  @@map("tenant")
+}
+
+/// Identidade global. Um usuário pode pertencer a 1+ tenants (cenário B2B de
+/// revenda). Por isso User NÃO tem tenant_id nem RLS — o vínculo (e o acesso
+/// tenant-scoped a usuários) acontece via Membership.
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  email       String   @unique
+  displayName String   @map("display_name")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  memberships Membership[]
+
+  @@map("user")
+}
+
+/// Vínculo User↔Tenant com papel. Estrutura de RBAC pronta para comercialização,
+/// mesmo que hoje o casal seja OWNER nos dois.
+model Membership {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  role      Role
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@map("membership")
+}
+
+// ─────────────────────────── Catálogo ───────────────────────────
+
+enum ProductStatus {
+  ACTIVE
+  ARCHIVED
+  DRAFT
+}
+
+/// Espelha o produto da Nuvemshop. `nuvemshopProductId` é nullable: um produto
+/// pode nascer no nosso app antes de existir lá.
+model Product {
+  id                 String        @id @default(uuid()) @db.Uuid
+  tenantId           String        @map("tenant_id") @db.Uuid
+  nuvemshopProductId BigInt?       @map("nuvemshop_product_id")
+  name               String
+  status             ProductStatus @default(ACTIVE)
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  variants Variant[]
+
+  @@unique([tenantId, nuvemshopProductId])
+  @@index([tenantId])
+  @@map("product")
+}
+
+/// TODA mercadoria é uma variante — inclusive o produto "simples", que na
+/// Nuvemshop tem uma variante "virtual". Estoque/preço/custo/SKU vivem aqui.
+/// `attributes` (JSON) espelha as opções da variante (ex.: {"size":"M","color":"Azul"});
+/// optei por JSON em vez de tabela de opções pela simplicidade no MVP read-heavy.
+model Variant {
+  id                 String   @id @default(uuid()) @db.Uuid
+  tenantId           String   @map("tenant_id") @db.Uuid
+  productId          String   @map("product_id") @db.Uuid
+  nuvemshopVariantId BigInt?  @map("nuvemshop_variant_id")
+  sku                String?
+  price              Decimal? @db.Decimal(12, 2)
+  cost               Decimal? @db.Decimal(12, 2)
+  attributes         Json?
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  product         Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  inventoryLevels InventoryLevel[]
+  stockMovements  StockMovement[]
+
+  @@unique([tenantId, sku])
+  @@unique([tenantId, nuvemshopVariantId])
+  @@index([tenantId])
+  @@index([productId])
+  @@map("variant")
+}
+
+/// Localização de estoque. O seed cria uma `default` por tenant. Multi-localização
+/// não é ativada no MVP, mas a tabela existe desde já para evitar migração futura.
+model Location {
+  id                  String   @id @default(uuid()) @db.Uuid
+  tenantId            String   @map("tenant_id") @db.Uuid
+  nuvemshopLocationId String?  @map("nuvemshop_location_id")
+  name                String
+  isDefault           Boolean  @default(false) @map("is_default")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  inventoryLevels InventoryLevel[]
+  stockMovements  StockMovement[]
+
+  @@index([tenantId])
+  @@map("location")
+}
+
+/// Estoque de uma variante numa localização. `stock` é DERIVADO do ledger:
+/// agregado materializado (cache de leitura), recalculado na mesma transação da
+/// escrita da movimentação. A verdade é stock_movement.
+model InventoryLevel {
+  id         String   @id @default(uuid()) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  variantId  String   @map("variant_id") @db.Uuid
+  locationId String   @map("location_id") @db.Uuid
+  stock      Int      @default(0)
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  variant  Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([variantId, locationId])
+  @@index([tenantId])
+  @@map("inventory_level")
+}
+
+// ──────────────────────────── Ledger ────────────────────────────
+
+enum MovementType {
+  PURCHASE_ENTRY
+  SALE
+  ADJUSTMENT
+  RETURN
+  SYNC_CORRECTION
+  REVERSAL
+}
+
+/// Origem da movimentação. É a chave anti-loop da sync bidirecional: uma mudança
+/// vinda do webhook da Nuvemshop (NUVEMSHOP_WEBHOOK) pode ser distinguida de uma
+/// originada no app (APP), evitando reprocessar em loop (app empurra → Nuvemshop
+/// dispara webhook → não reprocessar).
+enum MovementSource {
+  APP
+  NUVEMSHOP_WEBHOOK
+  INITIAL_SYNC
+}
+
+/// Ledger imutável (append-only). Nunca UPDATE/DELETE — correção é via nova
+/// movimentação (REVERSAL apontando para a original). A imutabilidade é imposta
+/// no banco (trigger + ausência de privilégio UPDATE/DELETE para app_user).
+model StockMovement {
+  id           String         @id @default(uuid()) @db.Uuid
+  tenantId     String         @map("tenant_id") @db.Uuid
+  variantId    String         @map("variant_id") @db.Uuid
+  locationId   String         @map("location_id") @db.Uuid
+  quantity     Int // sinal: + entrada, - saída
+  type         MovementType
+  source       MovementSource
+  reason       String?
+  occurredAt   DateTime       @default(now()) @map("occurred_at")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  sourceRef    String?        @map("source_ref") // id do evento de origem (webhook/ordem/etc.)
+  reversalOfId String?        @map("reversal_of_id") @db.Uuid
+
+  tenant     Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  variant    Variant         @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  location   Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  reversalOf StockMovement?  @relation("Reversal", fields: [reversalOfId], references: [id])
+  reversals  StockMovement[] @relation("Reversal")
+
+  @@index([tenantId])
+  @@index([variantId, locationId])
+  @@map("stock_movement")
+}
+
+// ─────────────────────── Sync com a Nuvemshop ───────────────────────
+
+enum ConnectionStatus {
+  ACTIVE
+  REVOKED
+  ERROR
+}
+
+/// 1 conexão OAuth por tenant. O access_token é guardado CRIPTOGRAFADO em repouso
+/// (AES-256-GCM, ver src/db/crypto.ts) — nunca em texto puro. client_id/secret do
+/// app NÃO ficam aqui: são do app e vêm do env.
+model NuvemshopConnection {
+  id                   String           @id @default(uuid()) @db.Uuid
+  tenantId             String           @unique @map("tenant_id") @db.Uuid
+  storeId              String           @map("store_id")
+  accessTokenEncrypted String           @map("access_token_encrypted")
+  scope                String?
+  status               ConnectionStatus @default(ACTIVE)
+  createdAt            DateTime         @default(now()) @map("created_at")
+  updatedAt            DateTime         @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("nuvemshop_connection")
+}
+
+enum SyncEntityType {
+  PRODUCT
+  VARIANT
+  INVENTORY_LEVEL
+  LOCATION
+}
+
+enum SyncStatus {
+  PENDING
+  SYNCED
+  OUT_OF_SYNC
+  ERROR
+}
+
+enum SyncDirection {
+  INBOUND
+  OUTBOUND
+  BIDIRECTIONAL
+}
+
+/// Estado de sincronização por entidade. Permite saber o que está dessincronizado
+/// e em que direção, sem poluir cada tabela de negócio com campos de sync.
+model SyncState {
+  id           String         @id @default(uuid()) @db.Uuid
+  tenantId     String         @map("tenant_id") @db.Uuid
+  entityType   SyncEntityType @map("entity_type")
+  entityId     String         @map("entity_id") @db.Uuid
+  lastSyncedAt DateTime?      @map("last_synced_at")
+  status       SyncStatus     @default(PENDING)
+  direction    SyncDirection  @default(BIDIRECTIONAL)
+  lastError    String?        @map("last_error")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, entityType, entityId])
+  @@index([tenantId])
+  @@map("sync_state")
+}
