@@ -21,6 +21,12 @@ const envSchema = z.object({
     .refine((v) => Buffer.from(v, "base64").length === 32, {
       message: "ENCRYPTION_KEY deve ser base64 de exatamente 32 bytes.",
     }),
+  // Segredo do Better Auth (assina sessões/tokens). Mínimo 32 chars.
+  BETTER_AUTH_SECRET: z.string().min(32),
+  // URL pública da própria API (base do Better Auth).
+  BETTER_AUTH_URL: z.string().url().default("http://localhost:3001"),
+  // Origem do front (Next) — usada em CORS e trustedOrigins do Better Auth.
+  WEB_ORIGIN: z.string().url().default("http://localhost:3000"),
 });
 
 const parsed = envSchema.safeParse(process.env);
