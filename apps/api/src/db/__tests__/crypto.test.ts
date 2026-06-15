@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decrypt, encrypt } from "../crypto";
+import { decrypt, encrypt } from "../crypto.js";
 
 describe("crypto — AES-256-GCM para tokens em repouso", () => {
   it("faz round-trip de encrypt/decrypt", () => {

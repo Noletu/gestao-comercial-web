@@ -1,7 +1,12 @@
 {
   "extends": "@gestao/typescript-config/node.json",
   "compilerOptions": {
-    "noEmit": true
+    "noEmit": true,
+    // apps/api é ESM ("type":"module"): Better Auth 1.x é ESM-only e seu
+    // package.json usa "exports" — só NodeNext resolve isso corretamente, e o
+    // build (node dist) precisa de ESM real. Imports relativos usam extensão .js.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
   },
   "include": [
     "src/**/*.ts",

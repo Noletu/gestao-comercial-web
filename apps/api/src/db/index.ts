@@ -5,5 +5,5 @@ export {
   withTenant,
   type TenantClient,
   type TenantTransaction,
-} from "./tenant";
-export { encrypt, decrypt } from "./crypto";
+} from "./tenant.js";
+export { encrypt, decrypt } from "./crypto.js";
