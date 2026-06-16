@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { adminPrisma, forTenant, prisma } from "../../db";
-import { recordMovement } from "../inventory.service";
+import { adminPrisma, forTenant, prisma } from "../../db/index.js";
+import { recordMovement } from "../inventory.service.js";
 
 /**
  * PROVA NÃO-NEGOCIÁVEL: o agregado materializado (inventory_level.stock) é sempre

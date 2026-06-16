@@ -3,7 +3,7 @@ import type {
   MovementType,
   StockMovement,
 } from "@prisma/client";
-import { withTenant, type TenantTransaction } from "../db";
+import { withTenant, type TenantTransaction } from "../db/index.js";
 
 export interface RecordMovementInput {
   variantId: string;

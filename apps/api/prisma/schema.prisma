@@ -56,16 +56,99 @@ model Tenant {
 /// Identidade global. Um usuário pode pertencer a 1+ tenants (cenário B2B de
 /// revenda). Por isso User NÃO tem tenant_id nem RLS — o vínculo (e o acesso
 /// tenant-scoped a usuários) acontece via Membership.
+///
+/// Campos `name/emailVerified/image/twoFactorEnabled` e as relações
+/// session/account/twoFactor são exigidos pelo Better Auth (auth self-hosted no
+/// nosso Postgres). Better Auth gera UUIDs (advanced.database.generateId="uuid"),
+/// compatíveis com as colunas @db.Uuid.
 model User {
-  id          String   @id @default(uuid()) @db.Uuid
-  email       String   @unique
-  displayName String   @map("display_name")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String
+  email            String   @unique
+  emailVerified    Boolean  @default(false) @map("email_verified")
+  image            String?
+  twoFactorEnabled Boolean? @default(false) @map("two_factor_enabled")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   memberships Membership[]
+  sessions    Session[]
+  accounts    Account[]
+  twofactors  TwoFactor[]
 
   @@map("user")
+}
+
+// ───────────────────────── Better Auth (identidade global) ─────────────────────
+// Tabelas de autenticação geridas pela aplicação via Better Auth. São GLOBAIS
+// (identidade, não negócio): sem tenant_id e sem RLS, como User. O role app_user
+// recebe privilégios via ALTER DEFAULT PRIVILEGES da migration #2.
+
+/// Sessão ativa (cookie httpOnly aponta para `token`).
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+/// Credencial por provedor. Para email/senha, `password` guarda o hash (scrypt,
+/// gerado pelo Better Auth) — nunca a senha em texto.
+model Account {
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @map("user_id") @db.Uuid
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+/// Tokens de uso único com expiração (verificação de email, reset de senha).
+model Verification {
+  id         String   @id @default(uuid()) @db.Uuid
+  identifier String
+  value      String
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+/// Segredo TOTP + códigos de backup do 2FA (plugin twoFactor). Opcional por usuário.
+model TwoFactor {
+  id          String  @id @default(uuid()) @db.Uuid
+  userId      String  @map("user_id") @db.Uuid
+  secret      String
+  backupCodes String  @map("backup_codes")
+  verified    Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("two_factor")
 }
 
 /// Vínculo User↔Tenant com papel. Estrutura de RBAC pronta para comercialização,

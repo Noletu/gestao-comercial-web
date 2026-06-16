@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getHealth } from "../services/health.service";
+import { getHealth } from "../services/health.service.js";
 
 /**
  * GET /health — usado pelo healthcheck do Railway (issue #4).
