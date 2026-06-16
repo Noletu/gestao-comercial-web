@@ -118,3 +118,45 @@ erro aparecer no deploy e não num request em produção.
 > **Segredos nunca entram no repositório.** `client_id`/`client_secret` da
 > Nuvemshop, a `DATABASE_URL` e a `ENCRYPTION_KEY` vivem apenas no `.env` local
 > (ignorado pelo git) e nas variáveis de ambiente do Railway.
+
+## Conexão com a Nuvemshop (OAuth)
+
+O fluxo conecta uma loja Nuvemshop ao tenant logado: iniciar instalação →
+callback com o `code` → troca por `access_token` (server-side) → conexão
+persistida **cifrada** (AES-256-GCM). O token **não expira** (só invalida em
+reinstalação/desinstalação), então não há refresh token. Detalhes do desenho em
+[`apps/api/src/nuvemshop/`](./apps/api/src/nuvemshop/).
+
+### Por que precisa de um túnel em dev
+
+A Nuvemshop redireciona o `code` para uma **URL pública** (o callback);
+`localhost` não é acessível por ela. Em dev, expomos a API local (porta 3001) com
+um túnel (**ngrok** ou **cloudflared**). A URL do callback é **configurável por
+env** (`NUVEMSHOP_REDIRECT_URI`) para alternar entre túnel (dev) e Railway (prod)
+sem mudar código.
+
+### Passo a passo (dev)
+
+```bash
+# 1. Suba a API e o front (raiz do repo)
+npm run dev
+
+# 2. Suba o túnel apontando para a API (porta 3001)
+ngrok http 3001
+#   → copie a URL https pública, ex.: https://abc123.ngrok-free.app
+#   (cloudflared: `cloudflared tunnel --url http://localhost:3001`)
+```
+
+3. No **portal da Nuvemshop** (app 34160), defina a **"URL de redirecionamento"**
+   para `https://SEU-TUNEL/api/nuvemshop/callback`.
+4. No `apps/api/.env`, defina o **mesmo** valor em `NUVEMSHOP_REDIRECT_URI` e
+   preencha `NUVEMSHOP_CLIENT_SECRET` (do portal). Reinicie a API.
+5. No painel (`/dashboard`), clique **"Conectar Nuvemshop"**, autorize na loja
+   demo **Regototeste (#7837533)** e volte. Sucesso → o card mostra
+   _"Conectada — loja {nome}"_ (o nome vem de uma chamada real a `GET /store`).
+
+> O endpoint de **troca de token** (`www.nuvemshop.com.br/apps/authorize/token`)
+> fica em host diferente da **API de recursos**
+> (`api.nuvemshop.com.br/{versão}/{store_id}`). E a Nuvemshop autentica pelo
+> header **`Authentication: bearer …`** (não `Authorization`) — ambos já tratados
+> no cliente HTTP.
