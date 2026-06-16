@@ -27,6 +27,27 @@ const envSchema = z.object({
   BETTER_AUTH_URL: z.string().url().default("http://localhost:3001"),
   // Origem do front (Next) — usada em CORS e trustedOrigins do Better Auth.
   WEB_ORIGIN: z.string().url().default("http://localhost:3000"),
+
+  // ── Nuvemshop (OAuth + API de recursos) ───────────────────────────────────
+  // client_id É o app_id do app no portal (34160). client_secret é SEGREDO e só
+  // é usado server-side na troca do code por token. Ambos OPCIONAIS no schema
+  // para não quebrar o boot/testes de quem não mexe na integração; as rotas de
+  // OAuth falham com erro claro se faltarem (ver nuvemshop/config.ts).
+  NUVEMSHOP_CLIENT_ID: z.string().optional(),
+  NUVEMSHOP_CLIENT_SECRET: z.string().optional(),
+  // URL pública do NOSSO callback. Configurável por env para alternar entre o
+  // túnel (dev: ngrok/cloudflared) e o Railway (prod) SEM mudar código. Deve
+  // bater com a "URL de redirecionamento" cadastrada no portal do app.
+  NUVEMSHOP_REDIRECT_URI: z
+    .string()
+    .url()
+    .default("http://localhost:3001/api/nuvemshop/callback"),
+  // Versão da API de recursos (path: /{version}/{store_id}/...).
+  NUVEMSHOP_API_VERSION: z.string().default("2025-03"),
+  // User-Agent OBRIGATÓRIO em toda chamada (sem ele a Nuvemshop responde 400).
+  NUVEMSHOP_USER_AGENT: z
+    .string()
+    .default("GestaoComercial (regotodigital@gmail.com)"),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -5,6 +5,7 @@ import { auth } from "./auth/auth.js";
 import { env } from "./lib/env.js";
 import { healthRouter } from "./routes/health.route.js";
 import { meRouter } from "./routes/me.route.js";
+import { nuvemshopRouter } from "./routes/nuvemshop.route.js";
 import { notFoundHandler } from "./middlewares/notFound.middleware.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 
@@ -26,6 +27,7 @@ export function createApp(): Express {
 
   app.use(healthRouter); // GET /health (healthcheck do Railway)
   app.use("/api", meRouter); // GET /api/me, /api/me/products (protegidas)
+  app.use("/api/nuvemshop", nuvemshopRouter); // OAuth + status da integração
 
   // 404 e erro centralizado por último, nesta ordem.
   app.use(notFoundHandler);
