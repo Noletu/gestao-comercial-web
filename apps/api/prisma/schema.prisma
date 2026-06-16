@@ -46,9 +46,10 @@ model Tenant {
   variants            Variant[]
   locations           Location[]
   inventoryLevels     InventoryLevel[]
-  stockMovements      StockMovement[]
-  nuvemshopConnection NuvemshopConnection?
-  syncStates          SyncState[]
+  stockMovements       StockMovement[]
+  nuvemshopConnection  NuvemshopConnection?
+  nuvemshopOauthStates NuvemshopOauthState[]
+  syncStates           SyncState[]
 
   @@map("tenant")
 }
@@ -335,6 +336,22 @@ model NuvemshopConnection {
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("nuvemshop_connection")
+}
+
+/// Token `state` anti-CSRF do fluxo OAuth da Nuvemshop. Vida curta e uso único:
+/// criado no `GET /connect` (no escopo do tenant logado) e consumido/apagado no
+/// `GET /callback`. NÃO guarda segredo — só liga um `state` aleatório de alta
+/// entropia ao tenant que iniciou a instalação, impedindo callback forjado.
+model NuvemshopOauthState {
+  id        String   @id @default(uuid()) @db.Uuid
+  state     String   @unique
+  tenantId  String   @map("tenant_id") @db.Uuid
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("nuvemshop_oauth_state")
 }
 
 enum SyncEntityType {

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { NuvemshopCard } from "./NuvemshopCard";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -66,6 +67,7 @@ export default function DashboardPage() {
           </p>
         </div>
       )}
+      <NuvemshopCard />
       <Link href="/two-factor" className="text-sm text-gray-700 underline">
         Ativar verificação em duas etapas (2FA)
       </Link>
