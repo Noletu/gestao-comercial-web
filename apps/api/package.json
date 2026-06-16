@@ -11,6 +11,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "prisma generate && tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
+    "start:prod": "prisma migrate deploy && node scripts/provision-db-role.mjs && node dist/index.js",
+    "db:provision-role": "node -r dotenv/config scripts/provision-db-role.mjs",
     "lint": "eslint \"src/**/*.ts\" --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

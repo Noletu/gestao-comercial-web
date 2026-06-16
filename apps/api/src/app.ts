@@ -14,6 +14,13 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 export function createApp(): Express {
   const app = express();
 
+  // Em produção a API roda atrás do proxy do Railway (TLS terminado nele). Sem
+  // confiar no proxy, o Express trata a conexão como HTTP e cookies Secure podem
+  // ser descartados / req.secure fica errado. Confiar em 1 hop resolve.
+  if (env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+  }
+
   // CORS com credenciais: o front (WEB_ORIGIN) envia o cookie de sessão.
   // Origin específico (não "*") é obrigatório quando credentials=true.
   app.use(cors({ origin: env.WEB_ORIGIN, credentials: true }));
