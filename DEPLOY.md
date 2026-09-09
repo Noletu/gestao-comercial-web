@@ -26,9 +26,14 @@ projeto (rede privada interna). É o deploy que dá à API uma **URL pública es
   Se um dia adicionarmos o **PgBouncer em transaction mode**, a mesma garantia
   vale (o contexto é por transação) — bastaria acrescentar `?pgbouncer=true` à
   `DATABASE_URL` (desliga prepared statements, exigência do Prisma com PgBouncer).
-- **Migrations e provisionamento rodam no release**, não no build. O start de
-  produção da API é `prisma migrate deploy && node scripts/provision-db-role.mjs
-&& node dist/index.js` (`start:prod`). Idempotente: pode rodar a cada deploy.
+- **Migrations e provisionamento rodam dentro do comando de start**, não numa
+  fase de release separada — o `railway.json` da api só define
+  `deploy.startCommand`. O start de produção é `prisma migrate deploy && node
+  scripts/provision-db-role.mjs && node dist/index.js` (`start:prod`), e esse
+  comando roda a **cada inicialização do contêiner** (deploy novo **e**
+  reinício, ex.: depois de uma queda) — não só quando você publica código
+  novo. Por isso precisa ser idempotente: roda quantas vezes for, sempre com
+  o mesmo resultado.
 - **Seed NÃO roda automático em produção** (evita recriar/sobrescrever dados).
   Roda **uma vez, manualmente** (passo 8).
 - **Cookies cross-domínio**: em produção `web-*.up.railway.app` e
@@ -74,7 +79,8 @@ No serviço `api` → **Settings**:
   healthcheck já vêm de lá — inclusive `healthcheckPath = /health`).
 
 Em **Variables**, cole os secrets do passo 5 **antes** do primeiro deploy. Só
-então faça o deploy (o release roda `migrate deploy` + provisiona o role).
+então faça o deploy (o comando de start roda `migrate deploy` + provisiona o
+role antes de subir o servidor — e roda de novo a cada reinício).
 
 ### 4. 🖱️ Criar o serviço `web`
 
@@ -92,8 +98,16 @@ então faça o deploy (o release roda `migrate deploy` + provisiona o role).
 
 - `ENCRYPTION_KEY` (base64, 32 bytes):
   `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`
-- `BETTER_AUTH_SECRET` e `APP_USER_PASSWORD`: botão **Generate** do Railway (32
-  chars) ou `openssl rand -base64 32`. (Evite `'` na senha do app_user.)
+- `BETTER_AUTH_SECRET`: botão **Generate** do Railway (32 chars) ou
+  `openssl rand -base64 32` — esse valor não entra em nenhuma URL, então o
+  alfabeto base64 (`A-Za-z0-9+/=`) não é problema.
+- `APP_USER_PASSWORD`: **precisa ser URL-safe**, porque é interpolada dentro
+  de `DATABASE_URL`. Use `openssl rand -hex 32` (alfabeto `0-9a-f`, sempre
+  seguro em URL) — **não** use o botão **Generate** do Railway nem
+  `base64` para esta variável. Uma `/` na senha quebra o parsing da
+  `DATABASE_URL` e a API **não sobe** (medido: ~48,5% das senhas em base64 de
+  32 bytes contêm `/`). A aspa simples `'` não quebra a URL, mas complica o
+  literal SQL do provisionamento do role — o hex evita as duas de uma vez.
 
 **Serviço `api` — Variables:**
 
@@ -101,7 +115,7 @@ então faça o deploy (o release roda `migrate deploy` + provisiona o role).
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | `NODE_ENV`                | `production`                                                                                                      | você                               |
 | `DIRECT_DATABASE_URL`     | `${{Postgres.DATABASE_URL}}`                                                                                      | **referência** ao Postgres (owner) |
-| `APP_USER_PASSWORD`       | _(gere 32 chars)_                                                                                                 | secret seu                         |
+| `APP_USER_PASSWORD`       | _(gere com `openssl rand -hex 32`)_                                                                               | secret seu                         |
 | `DATABASE_URL`            | `postgresql://app_user:${{APP_USER_PASSWORD}}@${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}` | composta (runtime = app_user)      |
 | `ENCRYPTION_KEY`          | _(base64 de 32 bytes)_                                                                                            | secret seu                         |
 | `BETTER_AUTH_SECRET`      | _(32+ chars)_                                                                                                     | secret seu                         |
@@ -144,13 +158,15 @@ então faça o deploy (o release roda `migrate deploy` + provisiona o role).
 4. No **portal da Nuvemshop** (app 34160), cadastre a **URL de redirecionamento**
    = o mesmo valor de `NUVEMSHOP_REDIRECT_URI`.
 
-### 7. Migrations + role (automático no release)
+### 7. Migrations + role (automático, a cada início do contêiner)
 
-Nada manual aqui: o `start:prod` da api roda, a cada deploy,
+Nada manual aqui: o `start:prod` da api roda, a cada inicialização do
+contêiner (deploy novo **e** reinício — ex.: depois de uma queda),
 `prisma migrate deploy` (aplica o schema) e depois
 `node scripts/provision-db-role.mjs` (aplica a senha do `app_user` a partir de
-`APP_USER_PASSWORD`). É idempotente. Acompanhe em **Deploy Logs** da api: deve
-aparecer `✅ Senha do role app_user provisionada a partir do ambiente.`
+`APP_USER_PASSWORD`). É por isso que precisa ser idempotente. Acompanhe em
+**Deploy Logs** da api: deve aparecer `✅ Senha do role app_user provisionada
+a partir do ambiente.`
 
 ### 8. Seed inicial (🖱️ uma única vez)
 

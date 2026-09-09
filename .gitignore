@@ -32,8 +32,9 @@ yarn-error.log*
 .claude/settings.local.json
 .claude/*.graphify-bak
 
-# Grafo de conhecimento gerado pelo graphify (regenerado pelo post-commit hook)
-graphify-out/
+# graphify: versiona só o grafo consultável; HTML e relatório são regenerados localmente
+graphify-out/*
+!graphify-out/graph.json
 
 # Sistema operacional / editor
 .DS_Store
