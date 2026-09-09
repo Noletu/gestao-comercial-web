@@ -41,7 +41,29 @@ if (!parsed.success) {
   // runtime. Queremos quebrar no deploy (cedo e óbvio), não num request perdido
   // em produção com comportamento imprevisível.
   console.error("❌ Variáveis de ambiente inválidas:");
-  console.error(parsed.error.flatten().fieldErrors);
+  const fieldErrors = parsed.error.flatten().fieldErrors;
+  console.error(fieldErrors);
+
+  // Dica acionável em português para o caso mais comum e mais difícil de
+  // diagnosticar sem ler stack trace: senha do app_user contendo `/`, que
+  // quebra a URL do banco (ver DEPLOY.md, seção "Secrets e variáveis"). Quem
+  // opera este projeto não é programador e não lê o fieldErrors acima.
+  //
+  // A dica cita só a barra de propósito: medido, `/` é o único caractere que
+  // faz `new URL()` — usado por baixo pelo `.url()` do Zod — rejeitar a
+  // string. `+`, `=` e espaço passam nesta validação, então prometer que a
+  // mensagem cobre esses casos seria mentir sobre o que o código detecta.
+  if (fieldErrors.DATABASE_URL ?? fieldErrors.DIRECT_DATABASE_URL) {
+    console.error(
+      "\n💡 O endereço do banco de dados está inválido. A causa mais " +
+        "provável: a senha do banco contém uma barra (`/`), que parte o " +
+        "endereço ao meio. O que fazer: gere uma senha nova com " +
+        "`openssl rand -hex 32` (só números e letras de a-f, sempre seguros " +
+        "aqui) e atualize APP_USER_PASSWORD e a DATABASE_URL (ou " +
+        "DIRECT_DATABASE_URL) que a referencia.",
+    );
+  }
+
   process.exit(1);
 }
 

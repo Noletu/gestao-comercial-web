@@ -31,6 +31,11 @@ if (!ownerUrl) {
 // Escapa aspas simples para um literal SQL seguro. Num literal entre aspas simples
 // o único metacaractere é a própria aspa simples (standard_conforming_strings=on,
 // default do Postgres) → dobrá-la basta para evitar injeção.
+//
+// Não é escolha incidental, é a única via: `ALTER ROLE ... PASSWORD` é DDL, e o
+// Postgres não aceita bind params (prepared statement) em DDL — só em DML. O caso
+// de senha com aspa simples está coberto pelo teste automatizado em
+// src/db/__tests__/provision-role.test.ts (Correção 3 da revisão da issue #4).
 const safePassword = password.replace(/'/g, "''");
 
 const prisma = new PrismaClient({ datasourceUrl: ownerUrl });
