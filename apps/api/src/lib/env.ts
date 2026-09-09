@@ -15,6 +15,11 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   // Migrations/seed (role owner). Opcional no runtime do servidor.
   DIRECT_DATABASE_URL: z.string().url().optional(),
+  // Senha do role app_user (GATE 1, issue #4). NÃO é usada pelo runtime do
+  // servidor (que já a carrega embutida em DATABASE_URL); é consumida pelo script
+  // `scripts/provision-db-role.mjs` para aplicar a senha sem versioná-la. Opcional
+  // aqui para não quebrar o boot de quem só sobe o servidor.
+  APP_USER_PASSWORD: z.string().optional(),
   // Chave AES-256-GCM, base64 de 32 bytes (= 44 chars com padding).
   ENCRYPTION_KEY: z
     .string()

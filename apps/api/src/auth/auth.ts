@@ -28,11 +28,14 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   advanced: {
     database: { generateId: "uuid" },
-    // Cookie de sessão: httpOnly (default), SameSite=Lax e Secure em produção.
-    // Em dev, front (:3000) e api (:3001) são same-site (localhost) → Lax basta.
-    // Em produção com domínios diferentes, trocar para SameSite=None+Secure.
+    // Cookie de sessão (httpOnly por default).
+    //  - Dev: front (:3000) e api (:3001) são same-site (localhost) → Lax basta.
+    //  - Prod: no Railway o front e a api ficam em DOMÍNIOS distintos
+    //    (web-*.up.railway.app vs api-*.up.railway.app). O navegador só envia o
+    //    cookie numa requisição cross-site com credentials se ele for
+    //    SameSite=None; e None exige Secure (HTTPS) — que o Railway provê.
     defaultCookieAttributes: {
-      sameSite: "lax",
+      sameSite: env.NODE_ENV === "production" ? "none" : "lax",
       secure: env.NODE_ENV === "production",
     },
   },

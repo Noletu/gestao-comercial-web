@@ -40,14 +40,19 @@ export type TenantTransaction = Prisma.TransactionClient;
  *
  * Trade-off: cada operação vira uma transação (2 idas ao banco). Aceitável para
  * o padrão de leitura do painel; escritas multi-passo usam `withTenant` (abaixo).
+ *
+ * `client` é injetável (default = singleton) só para o teste de pooling poder
+ * exercitar ESTE código com um client de `connection_limit=1` e provar que o
+ * contexto não vaza ao reusar a conexão (GATE 2, issue #4). Em produção, sempre
+ * o singleton.
  */
-export function forTenant(tenantId: string) {
-  return prisma.$extends({
+export function forTenant(tenantId: string, client: PrismaClient = prisma) {
+  return client.$extends({
     query: {
       $allModels: {
         async $allOperations({ args, query }) {
-          const [, result] = await prisma.$transaction([
-            prisma.$executeRaw`SELECT set_config('app.tenant_id', ${tenantId}, true)`,
+          const [, result] = await client.$transaction([
+            client.$executeRaw`SELECT set_config('app.tenant_id', ${tenantId}, true)`,
             query(args),
           ]);
           return result;
@@ -66,8 +71,9 @@ export function forTenant(tenantId: string) {
 export async function withTenant<T>(
   tenantId: string,
   fn: (tx: TenantTransaction) => Promise<T>,
+  client: PrismaClient = prisma,
 ): Promise<T> {
-  return prisma.$transaction(async (tx) => {
+  return client.$transaction(async (tx) => {
     await tx.$executeRaw`SELECT set_config('app.tenant_id', ${tenantId}, true)`;
     return fn(tx);
   });

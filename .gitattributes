@@ -23,3 +23,4 @@
 *.eot   binary
 *.pdf   binary
 *.zip   binary
+graphify-out/graph.json merge=graphify

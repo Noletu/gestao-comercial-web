@@ -11,8 +11,9 @@ com a Nuvemshop. Monorepo gerenciado com **Turborepo**.
 - **Monorepo:** Turborepo + npm workspaces
 - **Web:** Next.js 14 (App Router) + React 18 + Tailwind CSS
 - **API:** Express + TypeScript (TS estrito) + validação de env com Zod
+- **Banco:** PostgreSQL + Prisma, multi-tenant via Row-Level Security
+- **Deploy:** Railway (dois serviços + Postgres gerenciado) — ver [`DEPLOY.md`](./DEPLOY.md)
 - **Qualidade:** ESLint + Prettier (configs compartilhadas em `packages/`)
-- _Banco (Prisma + PostgreSQL) e deploy (Railway) chegam nas próximas issues._
 
 ## Estrutura
 
@@ -92,10 +93,17 @@ cp apps/api/.env.example apps/api/.env
 
 ```bash
 cd apps/api
-npm run db:migrate   # aplica o schema + o SQL de RLS
-npm run db:seed      # popula a loja do casal com dados de exemplo
-npm run db:studio    # (opcional) abre o Prisma Studio
+npm run db:migrate         # aplica o schema + o SQL de RLS
+npm run db:provision-role  # aplica a senha do app_user a partir de APP_USER_PASSWORD
+npm run db:seed            # popula a loja do casal com dados de exemplo
+npm run db:studio          # (opcional) abre o Prisma Studio
 ```
+
+> A migration cria o role `app_user` **sem senha** (GATE 1 da issue #4 — a senha
+> nunca vai para o SQL versionado, pois o repo é público). O
+> `db:provision-role` aplica a senha de `APP_USER_PASSWORD` (no `.env`); ela deve
+> ser igual à embutida no `DATABASE_URL`. Em produção, o Railway roda isso no
+> release automaticamente (ver [`DEPLOY.md`](./DEPLOY.md)).
 
 ### Testes de integração do banco
 

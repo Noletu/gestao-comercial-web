@@ -261,12 +261,17 @@ ALTER TABLE "sync_state" ADD CONSTRAINT "sync_state_tenant_id_fkey" FOREIGN KEY 
 --    SEM superusuário e SEM ser dono das tabelas → o RLS é SEMPRE aplicado a ele.
 --    O runtime conecta com este role (DATABASE_URL). Migrations/seed usam o owner
 --    (DIRECT_DATABASE_URL), que é superusuário e bypassa o RLS de propósito.
---    Senha de DEV; em produção o role/segredo vêm das variáveis do Railway.
+--
+--    GATE 1 (issue #4): a SENHA do role NÃO vive neste SQL versionado — o repo é
+--    PÚBLICO. Aqui o role nasce SEM senha utilizável (não consegue logar). A senha
+--    real é aplicada FORA do versionamento pelo script de provisionamento
+--    (`scripts/provision-db-role.mjs`), que lê `APP_USER_PASSWORD` do ambiente
+--    (em prod, dos secrets do Railway). Rode-o após o migrate (ver DEPLOY.md).
 -- ─────────────────────────────────────────────────────────────────────────────
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'app_user') THEN
-    CREATE ROLE app_user LOGIN PASSWORD 'app_user_pw';
+    CREATE ROLE app_user LOGIN;
   END IF;
 END
 $$;
