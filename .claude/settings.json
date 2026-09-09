@@ -1,0 +1,40 @@
+{
+  "agent": "senior",
+  "permissions": {
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(rmdir:*)",
+      "Bash(git clean:*)",
+      "Bash(git stash:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(truncate:*)",
+      "PowerShell(Remove-Item:*)",
+      "PowerShell(Clear-Content:*)",
+      "PowerShell(git clean:*)",
+      "PowerShell(git stash:*)",
+      "PowerShell(git reset --hard:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/Lucas/.local/bin/graphify.EXE hook-guard search"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/Lucas/.local/bin/graphify.EXE hook-guard read"
+          }
+        ]
+      }
+    ]
+  }
+}

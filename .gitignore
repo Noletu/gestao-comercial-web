@@ -26,6 +26,15 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 
+# Claude Code — memória de subagente e settings locais não são versionados
+# (ver CLAUDE.md § "Versionamento do .claude/")
+.claude/agent-memory/
+.claude/settings.local.json
+.claude/*.graphify-bak
+
+# Grafo de conhecimento gerado pelo graphify (regenerado pelo post-commit hook)
+graphify-out/
+
 # Sistema operacional / editor
 .DS_Store
 Thumbs.db
