@@ -1,17 +1,15 @@
 # Ambiente de desenvolvimento para GitHub Codespaces (ou "Reopen in Container").
 #
-# Node 22 + Postgres 18, ambos DENTRO do Codespace. O banco não sai pela rede,
+# Node 22 + Postgres 16, ambos DENTRO do Codespace. O banco não sai pela rede,
 # então contorna proxy corporativo (Netskope) que bloqueia o protocolo do
 # Postgres. Fora do Codespace este arquivo fica inerte: o dev local no host
 # continua com ./scripts/dev-db.ps1 ou o docker-compose.yml da raiz.
 #
 # O serviço `db` usa as mesmas credenciais e nome de banco do docker-compose.yml
-# da raiz. A imagem é `postgres:16` (não `:18` como a raiz): a imagem oficial da
-# 18 mudou o PGDATA padrão e o volume abaixo, montado em
-# `/var/lib/postgresql/data`, faz o container da 18 sair com erro no boot. A 16 é
-# compatível com o Prisma 5.22 e mantém o layout antigo.
-# (O docker-compose.yml da raiz tem o mesmo problema latente com `postgres:18` —
-#  reportar em separado; não é escopo desta branch.)
+# da raiz. A imagem é `postgres:16` (não `:18`): a imagem oficial da 18 mudou o
+# PGDATA padrão e o volume abaixo, montado em `/var/lib/postgresql/data`, faz o
+# container da 18 sair com erro no boot. A 16 mantém o layout antigo e é
+# compatível com o Prisma 5.22.
 services:
   app:
     image: mcr.microsoft.com/devcontainers/javascript-node:22

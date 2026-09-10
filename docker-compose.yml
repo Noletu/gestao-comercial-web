@@ -13,6 +13,8 @@ services:
     # volume abaixo, montado em /var/lib/postgresql/data, faz o container sair
     # com código 1 no boot. A 16 mantém o layout antigo e é compatível com o
     # Prisma 5.22. Comprovado no .devcontainer, que usa a mesma imagem.
+    # Se você já tentou subir com :18, rode `docker compose down -v` antes (o
+    # volume meio-inicializado pela 18 trava o up da 16).
     image: postgres:16
     container_name: gestao_postgres
     environment:

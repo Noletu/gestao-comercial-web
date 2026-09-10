@@ -1,7 +1,7 @@
 # Ambiente de desenvolvimento em Codespace
 
 Para quando o Postgres local não é uma opção (rede corporativa bloqueia o
-protocolo do Postgres). Node 22 + Postgres 18 rodam **dentro** do Codespace;
+protocolo do Postgres). Node 22 + Postgres 16 rodam **dentro** do Codespace;
 nada de banco sai pela rede.
 
 ## Abra pelo VS Code Desktop — não pelo navegador

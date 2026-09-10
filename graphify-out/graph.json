@@ -5536,7 +5536,7 @@
       "contributor": null,
       "file_type": "concept",
       "norm_label": "postgres local de desenvolvimento (docker-compose)",
-      "rationale": "postgres:18 isolado no projeto sem instalar nada no host. A migration cria o role app_user (sem superusu\u00e1rio) para o RLS ser realmente aplicado; o superusu\u00e1rio postgres \u00e9 usado s\u00f3 por migrations/seed (DIRECT_DATABASE_URL).",
+      "rationale": "postgres:16 isolado no projeto sem instalar nada no host. A migration cria o role app_user (sem superusu\u00e1rio) para o RLS ser realmente aplicado; o superusu\u00e1rio postgres \u00e9 usado s\u00f3 por migrations/seed (DIRECT_DATABASE_URL).",
       "source_file": "docker-compose.yml",
       "source_location": null,
       "source_url": null
