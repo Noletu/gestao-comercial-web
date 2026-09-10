@@ -49,45 +49,6 @@
   },
   "nodes": [
     {
-      "id": "apps_api_src_auth_auth_auth",
-      "label": "Auth",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "auth",
-      "source_file": "apps/api/src/auth/auth.ts",
-      "source_location": "L54"
-    },
-    {
-      "id": "apps_api_src_auth_email_consoleemailsender",
-      "label": "ConsoleEmailSender",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "consoleemailsender",
-      "source_file": "apps/api/src/auth/email.ts",
-      "source_location": "L13"
-    },
-    {
-      "id": "apps_api_src_auth_email_emailsender",
-      "label": "emailSender",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "emailsender",
-      "source_file": "apps/api/src/auth/email.ts",
-      "source_location": "L26"
-    },
-    {
       "id": "apps_api_src_db_tenant_tenantclient",
       "label": "TenantClient",
       "_callable": true,
@@ -205,6 +166,45 @@
       "source_location": "L10"
     },
     {
+      "id": "apps_api_src_auth_auth_auth",
+      "label": "Auth",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "auth",
+      "source_file": "apps/api/src/auth/auth.ts",
+      "source_location": "L54"
+    },
+    {
+      "id": "apps_api_src_auth_email_consoleemailsender",
+      "label": "ConsoleEmailSender",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "consoleemailsender",
+      "source_file": "apps/api/src/auth/email.ts",
+      "source_location": "L13"
+    },
+    {
+      "id": "apps_api_src_auth_email_emailsender",
+      "label": "emailSender",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "emailsender",
+      "source_file": "apps/api/src/auth/email.ts",
+      "source_location": "L26"
+    },
+    {
       "id": "apps_api_src_lib_env_env",
       "label": "Env",
       "_callable": true,
@@ -229,78 +229,6 @@
       "norm_label": "healthstatus",
       "source_file": "apps/api/src/services/health.service.ts",
       "source_location": "L1"
-    },
-    {
-      "id": "apps_api_prisma_seed_createowner",
-      "label": "createOwner()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "createowner()",
-      "source_file": "apps/api/prisma/seed.ts",
-      "source_location": "L22"
-    },
-    {
-      "id": "apps_api_prisma_seed_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "apps/api/prisma/seed.ts",
-      "source_location": "L64"
-    },
-    {
-      "id": "apps_api_prisma_seed_requireenv",
-      "label": "requireEnv()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "requireenv()",
-      "source_file": "apps/api/prisma/seed.ts",
-      "source_location": "L11"
-    },
-    {
-      "id": "apps_api_prisma_seed_seedmovements",
-      "label": "seedMovements()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "seedmovements()",
-      "source_file": "apps/api/prisma/seed.ts",
-      "source_location": "L33"
-    },
-    {
-      "id": "apps_api_src_auth_email_consoleemailsender_sendpasswordreset",
-      "label": ".sendPasswordReset()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": ".sendpasswordreset()",
-      "source_file": "apps/api/src/auth/email.ts",
-      "source_location": "L17"
-    },
-    {
-      "id": "apps_api_src_auth_email_emailsender_sendpasswordreset",
-      "label": ".sendPasswordReset()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": ".sendpasswordreset()",
-      "source_file": "apps/api/src/auth/email.ts",
-      "source_location": "L10"
     },
     {
       "id": "apps_api_src_auth_tests_auth_reset_test_extracttoken",
@@ -469,18 +397,6 @@
       "norm_label": "truncateall()",
       "source_file": "apps/api/src/db/__tests__/rls.pooling.test.ts",
       "source_location": "L39"
-    },
-    {
-      "id": "apps_api_src_middlewares_requireauth_middleware_requireauth",
-      "label": "requireAuth()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "requireauth()",
-      "source_file": "apps/api/src/middlewares/requireAuth.middleware.ts",
-      "source_location": "L22"
     },
     {
       "id": "apps_api_src_services_inventory_service_recomputestock",
@@ -819,6 +735,54 @@
       "source_location": "L16"
     },
     {
+      "id": "apps_api_prisma_seed_createowner",
+      "label": "createOwner()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "createowner()",
+      "source_file": "apps/api/prisma/seed.ts",
+      "source_location": "L22"
+    },
+    {
+      "id": "apps_api_prisma_seed_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "apps/api/prisma/seed.ts",
+      "source_location": "L64"
+    },
+    {
+      "id": "apps_api_prisma_seed_requireenv",
+      "label": "requireEnv()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "requireenv()",
+      "source_file": "apps/api/prisma/seed.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "apps_api_prisma_seed_seedmovements",
+      "label": "seedMovements()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "seedmovements()",
+      "source_file": "apps/api/prisma/seed.ts",
+      "source_location": "L33"
+    },
+    {
       "id": "apps_api_src_app_createapp",
       "label": "createApp()",
       "_callable": true,
@@ -829,6 +793,30 @@
       "norm_label": "createapp()",
       "source_file": "apps/api/src/app.ts",
       "source_location": "L14"
+    },
+    {
+      "id": "apps_api_src_auth_email_consoleemailsender_sendpasswordreset",
+      "label": ".sendPasswordReset()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": ".sendpasswordreset()",
+      "source_file": "apps/api/src/auth/email.ts",
+      "source_location": "L17"
+    },
+    {
+      "id": "apps_api_src_auth_email_emailsender_sendpasswordreset",
+      "label": ".sendPasswordReset()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": ".sendpasswordreset()",
+      "source_file": "apps/api/src/auth/email.ts",
+      "source_location": "L10"
     },
     {
       "id": "apps_api_src_middlewares_error_middleware_errorhandler",
@@ -855,6 +843,18 @@
       "source_location": "L7"
     },
     {
+      "id": "apps_api_src_middlewares_requireauth_middleware_requireauth",
+      "label": "requireAuth()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "requireauth()",
+      "source_file": "apps/api/src/middlewares/requireAuth.middleware.ts",
+      "source_location": "L22"
+    },
+    {
       "id": "apps_api_src_services_health_service_gethealth",
       "label": "getHealth()",
       "_callable": true,
@@ -865,17 +865,6 @@
       "norm_label": "gethealth()",
       "source_file": "apps/api/src/services/health.service.ts",
       "source_location": "L11"
-    },
-    {
-      "id": "apps_api_prisma_seed",
-      "label": "seed.ts",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "seed.ts",
-      "source_file": "apps/api/prisma/seed.ts",
-      "source_location": "L1"
     },
     {
       "id": "apps_api_scripts_provision_db_role",
@@ -909,28 +898,6 @@
       "norm_label": "safepassword",
       "source_file": "apps/api/scripts/provision-db-role.mjs",
       "source_location": "L39"
-    },
-    {
-      "id": "apps_api_src_auth_auth",
-      "label": "auth.ts",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "auth.ts",
-      "source_file": "apps/api/src/auth/auth.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "apps_api_src_auth_email",
-      "label": "email.ts",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "email.ts",
-      "source_file": "apps/api/src/auth/email.ts",
-      "source_location": "L1"
     },
     {
       "id": "apps_api_src_auth_tests_auth_reset_test",
@@ -1107,28 +1074,6 @@
       "norm_label": "pool",
       "source_file": "apps/api/src/db/__tests__/rls.pooling.test.ts",
       "source_location": "L56"
-    },
-    {
-      "id": "apps_api_src_middlewares_requireauth_middleware",
-      "label": "requireAuth.middleware.ts",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "requireauth.middleware.ts",
-      "source_file": "apps/api/src/middlewares/requireAuth.middleware.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "apps_api_src_routes_me_route",
-      "label": "me.route.ts",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "db/index.ts",
-      "file_type": "code",
-      "norm_label": "me.route.ts",
-      "source_file": "apps/api/src/routes/me.route.ts",
-      "source_location": "L1"
     },
     {
       "id": "apps_api_src_services_inventory_service",
@@ -2957,17 +2902,6 @@
       "source_location": "L48"
     },
     {
-      "id": "ref_cors",
-      "label": "cors",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "api/package.json",
-      "file_type": "concept",
-      "norm_label": "cors",
-      "source_file": "apps/api/package.json",
-      "source_location": "L31"
-    },
-    {
       "id": "ref_dotenv",
       "label": "dotenv",
       "_origin": "ast",
@@ -3430,6 +3364,17 @@
       "source_location": "L1"
     },
     {
+      "id": "scripts_dev_db_exit_withdatabasefailure",
+      "label": "Exit-WithDatabaseFailure()",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "dev-db.ps1",
+      "file_type": "code",
+      "norm_label": "exit-withdatabasefailure()",
+      "source_file": "scripts/dev-db.ps1",
+      "source_location": "L76"
+    },
+    {
       "id": "scripts_dev_db_find_pgbin",
       "label": "Find-PgBin()",
       "_origin": "ast",
@@ -3460,7 +3405,7 @@
       "file_type": "code",
       "norm_label": "start-cluster()",
       "source_file": "scripts/dev-db.ps1",
-      "source_location": "L62"
+      "source_location": "L86"
     },
     {
       "id": "scripts_dev_db_stop_cluster",
@@ -3471,7 +3416,18 @@
       "file_type": "code",
       "norm_label": "stop-cluster()",
       "source_file": "scripts/dev-db.ps1",
-      "source_location": "L75"
+      "source_location": "L136"
+    },
+    {
+      "id": "scripts_dev_db_test_realconnection",
+      "label": "Test-RealConnection()",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "dev-db.ps1",
+      "file_type": "code",
+      "norm_label": "test-realconnection()",
+      "source_file": "scripts/dev-db.ps1",
+      "source_location": "L66"
     },
     {
       "id": "apps_api_eslintrc",
@@ -4085,112 +4041,293 @@
       "source_location": "L119"
     },
     {
-      "id": "handoff",
-      "label": "HANDOFF.md",
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "label": "20260614222145_init/migration.sql",
       "_origin": "ast",
       "community": 36,
-      "community_name": "HANDOFF \u2014 2026-09-09 00:20",
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "20260614222145_init/migration.sql",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": null
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration_forbid_stock_movement_mutation",
+      "label": "forbid_stock_movement_mutation()",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "forbid_stock_movement_mutation()",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L304"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration_inventory_level",
+      "label": "\"inventory_level\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"inventory_level\"",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L100"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration_location",
+      "label": "\"location\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"location\"",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L87"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration_membership",
+      "label": "\"membership\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"membership\"",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L47"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration_nuvemshop_connection",
+      "label": "\"nuvemshop_connection\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"nuvemshop_connection\"",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L130"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration_product",
+      "label": "\"product\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"product\"",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L58"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration_stock_movement",
+      "label": "\"stock_movement\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"stock_movement\"",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L112"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration_sync_state",
+      "label": "\"sync_state\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"sync_state\"",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L144"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration_tenant",
+      "label": "\"tenant\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"tenant\"",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L26"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration_user",
+      "label": "\"user\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"user\"",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L36"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222145_init_migration_variant",
+      "label": "\"variant\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"variant\"",
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L71"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration",
+      "label": "20260614222200_auth_better_auth/migration.sql",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "20260614222200_auth_better_auth/migration.sql",
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": null
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration_account",
+      "label": "\"account\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"account\"",
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": "L23"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration_session",
+      "label": "\"session\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"session\"",
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": "L9"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration_two_factor",
+      "label": "\"two_factor\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"two_factor\"",
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": "L54"
+    },
+    {
+      "id": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration_verification",
+      "label": "\"verification\"",
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "20260614222145_init/migration.sql",
+      "file_type": "code",
+      "norm_label": "\"verification\"",
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": "L42"
+    },
+    {
+      "id": "devcontainer_readme",
+      "label": ".devcontainer/README.md",
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "Ambiente de desenvolvimento em Codespace",
       "file_type": "document",
       "node_kind": "page",
-      "norm_label": "handoff.md",
-      "source_file": "HANDOFF.md",
+      "norm_label": ".devcontainer/readme.md",
+      "source_file": ".devcontainer/README.md",
       "source_location": "L1"
     },
     {
-      "id": "handoff_decis\u00f5es_esperando_o_usu\u00e1rio",
-      "label": "Decis\u00f5es esperando o usu\u00e1rio",
+      "id": "devcontainer_readme_abra_pelo_vs_code_desktop_n\u00e3o_pelo_navegador",
+      "label": "Abra pelo VS Code Desktop \u2014 n\u00e3o pelo navegador",
       "_origin": "ast",
-      "community": 36,
-      "community_name": "HANDOFF \u2014 2026-09-09 00:20",
+      "community": 37,
+      "community_name": "Ambiente de desenvolvimento em Codespace",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "decisoes esperando o usuario",
-      "source_file": "HANDOFF.md",
-      "source_location": "L99"
+      "norm_label": "abra pelo vs code desktop \u2014 nao pelo navegador",
+      "source_file": ".devcontainer/README.md",
+      "source_location": "L7"
     },
     {
-      "id": "handoff_estado_atual",
-      "label": "Estado atual",
+      "id": "devcontainer_readme_ambiente_de_desenvolvimento_em_codespace",
+      "label": "Ambiente de desenvolvimento em Codespace",
       "_origin": "ast",
-      "community": 36,
-      "community_name": "HANDOFF \u2014 2026-09-09 00:20",
+      "community": 37,
+      "community_name": "Ambiente de desenvolvimento em Codespace",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "estado atual",
-      "source_file": "HANDOFF.md",
-      "source_location": "L3"
-    },
-    {
-      "id": "handoff_handoff_2026_09_09_00_20",
-      "label": "HANDOFF \u2014 2026-09-09 00:20",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "HANDOFF \u2014 2026-09-09 00:20",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "handoff \u2014 2026-09-09 00:20",
-      "source_file": "HANDOFF.md",
+      "norm_label": "ambiente de desenvolvimento em codespace",
+      "source_file": ".devcontainer/README.md",
       "source_location": "L1"
     },
     {
-      "id": "handoff_n\u00e3o_verificado",
-      "label": "N\u00e3o verificado",
+      "id": "devcontainer_readme_como_conectar",
+      "label": "Como conectar",
       "_origin": "ast",
-      "community": 36,
-      "community_name": "HANDOFF \u2014 2026-09-09 00:20",
+      "community": 37,
+      "community_name": "Ambiente de desenvolvimento em Codespace",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "nao verificado",
-      "source_file": "HANDOFF.md",
-      "source_location": "L114"
+      "norm_label": "como conectar",
+      "source_file": ".devcontainer/README.md",
+      "source_location": "L20"
     },
     {
-      "id": "handoff_o_que_foi_feito_em_ordem",
-      "label": "O que foi feito, em ordem",
+      "id": "devcontainer_readme_fora_do_codespace",
+      "label": "Fora do Codespace",
       "_origin": "ast",
-      "community": 36,
-      "community_name": "HANDOFF \u2014 2026-09-09 00:20",
+      "community": 37,
+      "community_name": "Ambiente de desenvolvimento em Codespace",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "o que foi feito, em ordem",
-      "source_file": "HANDOFF.md",
-      "source_location": "L17"
+      "norm_label": "fora do codespace",
+      "source_file": ".devcontainer/README.md",
+      "source_location": "L41"
     },
     {
-      "id": "handoff_o_que_foi_tentado_e_abandonado",
-      "label": "O que foi tentado e abandonado",
+      "id": "devcontainer_readme_o_que_o_setup_sh_faz",
+      "label": "O que o `setup.sh` faz",
       "_origin": "ast",
-      "community": 36,
-      "community_name": "HANDOFF \u2014 2026-09-09 00:20",
+      "community": 37,
+      "community_name": "Ambiente de desenvolvimento em Codespace",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "o que foi tentado e abandonado",
-      "source_file": "HANDOFF.md",
-      "source_location": "L82"
+      "norm_label": "o que o `setup.sh` faz",
+      "source_file": ".devcontainer/README.md",
+      "source_location": "L32"
     },
     {
-      "id": "handoff_objetivo",
-      "label": "Objetivo",
+      "id": "devcontainer_setup",
+      "label": "setup.sh",
       "_origin": "ast",
-      "community": 36,
-      "community_name": "HANDOFF \u2014 2026-09-09 00:20",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "objetivo",
-      "source_file": "HANDOFF.md",
-      "source_location": "L11"
+      "community": 38,
+      "community_name": "setup.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "norm_label": "setup.sh",
+      "source_file": ".devcontainer/setup.sh",
+      "source_location": "L1"
     },
     {
-      "id": "handoff_pr\u00f3xima_a\u00e7\u00e3o",
-      "label": "Pr\u00f3xima a\u00e7\u00e3o",
+      "id": "devcontainer_setup_sh__entry",
+      "label": "setup.sh script",
       "_origin": "ast",
-      "community": 36,
-      "community_name": "HANDOFF \u2014 2026-09-09 00:20",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "proxima acao",
-      "source_file": "HANDOFF.md",
-      "source_location": "L85"
+      "community": 38,
+      "community_name": "setup.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "norm_label": "setup.sh script",
+      "source_file": ".devcontainer/setup.sh",
+      "source_location": "L1"
     },
     {
       "id": "apps_web_app_dashboard_page",
@@ -4545,6 +4682,17 @@
       "source_location": "L20"
     },
     {
+      "id": "apps_api_prisma_seed",
+      "label": "seed.ts",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "seed.ts",
+      "source_file": "apps/api/prisma/seed.ts",
+      "source_location": "L1"
+    },
+    {
       "id": "apps_api_src_app",
       "label": "app.ts",
       "_origin": "ast",
@@ -4553,6 +4701,28 @@
       "file_type": "code",
       "norm_label": "app.ts",
       "source_file": "apps/api/src/app.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "apps_api_src_auth_auth",
+      "label": "auth.ts",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "auth.ts",
+      "source_file": "apps/api/src/auth/auth.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "apps_api_src_auth_email",
+      "label": "email.ts",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "email.ts",
+      "source_file": "apps/api/src/auth/email.ts",
       "source_location": "L1"
     },
     {
@@ -4633,6 +4803,17 @@
       "source_location": "L1"
     },
     {
+      "id": "apps_api_src_middlewares_requireauth_middleware",
+      "label": "requireAuth.middleware.ts",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "requireauth.middleware.ts",
+      "source_file": "apps/api/src/middlewares/requireAuth.middleware.ts",
+      "source_location": "L1"
+    },
+    {
       "id": "apps_api_src_routes_health_route",
       "label": "health.route.ts",
       "_origin": "ast",
@@ -4655,6 +4836,17 @@
       "source_location": "L8"
     },
     {
+      "id": "apps_api_src_routes_me_route",
+      "label": "me.route.ts",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "me.route.ts",
+      "source_file": "apps/api/src/routes/me.route.ts",
+      "source_location": "L1"
+    },
+    {
       "id": "apps_api_src_routes_me_route_merouter",
       "label": "meRouter",
       "_origin": "ast",
@@ -4675,6 +4867,17 @@
       "norm_label": "health.service.ts",
       "source_file": "apps/api/src/services/health.service.ts",
       "source_location": "L1"
+    },
+    {
+      "id": "ref_cors",
+      "label": "cors",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "concept",
+      "norm_label": "cors",
+      "source_file": "apps/api/package.json",
+      "source_location": "L31"
     },
     {
       "id": "ref_express",
@@ -8007,13 +8210,35 @@
     },
     {
       "source": "scripts_dev_db_start_cluster",
+      "target": "scripts_dev_db_exit_withdatabasefailure",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/dev-db.ps1",
+      "source_location": "L118",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_dev_db_start_cluster",
+      "target": "scripts_dev_db_test_realconnection",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/dev-db.ps1",
+      "source_location": "L129",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_dev_db_start_cluster",
       "target": "scripts_dev_db_initialize_cluster",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/dev-db.ps1",
-      "source_location": "L63",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -8531,6 +8756,171 @@
       "confidence_score": 1.0,
       "source_file": "apps/api/package.json",
       "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_inventory_level",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_stock_movement",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_nuvemshop_connection",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L130",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_sync_state",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L144",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_tenant",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_forbid_stock_movement_mutation",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L304",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_user",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_membership",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_product",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_variant",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_location",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L87",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration",
+      "target": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration_account",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration",
+      "target": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration_verification",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration",
+      "target": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration_two_factor",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration",
+      "target": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration_session",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -10327,91 +10717,69 @@
       "weight": 1.0
     },
     {
-      "source": "handoff",
-      "target": "handoff_handoff_2026_09_09_00_20",
+      "source": "devcontainer_readme",
+      "target": "devcontainer_readme_ambiente_de_desenvolvimento_em_codespace",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "HANDOFF.md",
+      "source_file": ".devcontainer/README.md",
       "source_location": "L1",
       "weight": 1.0
     },
     {
-      "source": "handoff_handoff_2026_09_09_00_20",
-      "target": "handoff_objetivo",
+      "source": "devcontainer_readme_abra_pelo_vs_code_desktop_n\u00e3o_pelo_navegador",
+      "target": "devcontainer_readme_como_conectar",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "HANDOFF.md",
-      "source_location": "L11",
+      "source_file": ".devcontainer/README.md",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
-      "source": "handoff_handoff_2026_09_09_00_20",
-      "target": "handoff_n\u00e3o_verificado",
+      "source": "devcontainer_readme_ambiente_de_desenvolvimento_em_codespace",
+      "target": "devcontainer_readme_o_que_o_setup_sh_faz",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "HANDOFF.md",
-      "source_location": "L114",
+      "source_file": ".devcontainer/README.md",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
-      "source": "handoff_handoff_2026_09_09_00_20",
-      "target": "handoff_o_que_foi_feito_em_ordem",
+      "source": "devcontainer_readme_ambiente_de_desenvolvimento_em_codespace",
+      "target": "devcontainer_readme_fora_do_codespace",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "HANDOFF.md",
-      "source_location": "L17",
+      "source_file": ".devcontainer/README.md",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
-      "source": "handoff_handoff_2026_09_09_00_20",
-      "target": "handoff_estado_atual",
+      "source": "devcontainer_readme_ambiente_de_desenvolvimento_em_codespace",
+      "target": "devcontainer_readme_abra_pelo_vs_code_desktop_n\u00e3o_pelo_navegador",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "HANDOFF.md",
-      "source_location": "L3",
+      "source_file": ".devcontainer/README.md",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
-      "source": "handoff_handoff_2026_09_09_00_20",
-      "target": "handoff_o_que_foi_tentado_e_abandonado",
+      "source": "devcontainer_setup",
+      "target": "devcontainer_setup_sh__entry",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "HANDOFF.md",
-      "source_location": "L82",
-      "weight": 1.0
-    },
-    {
-      "source": "handoff_handoff_2026_09_09_00_20",
-      "target": "handoff_pr\u00f3xima_a\u00e7\u00e3o",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "HANDOFF.md",
-      "source_location": "L85",
-      "weight": 1.0
-    },
-    {
-      "source": "handoff_handoff_2026_09_09_00_20",
-      "target": "handoff_decis\u00f5es_esperando_o_usu\u00e1rio",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "HANDOFF.md",
-      "source_location": "L99",
+      "source_file": ".devcontainer/setup.sh",
+      "source_location": "L1",
       "weight": 1.0
     },
     {
@@ -11340,6 +11708,17 @@
     },
     {
       "source": "scripts_dev_db",
+      "target": "scripts_dev_db_stop_cluster",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/dev-db.ps1",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_dev_db",
       "target": "scripts_dev_db_find_pgbin",
       "relation": "contains",
       "_origin": "ast",
@@ -11362,24 +11741,35 @@
     },
     {
       "source": "scripts_dev_db",
+      "target": "scripts_dev_db_test_realconnection",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/dev-db.ps1",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_dev_db",
+      "target": "scripts_dev_db_exit_withdatabasefailure",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/dev-db.ps1",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_dev_db",
       "target": "scripts_dev_db_start_cluster",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/dev-db.ps1",
-      "source_location": "L62",
-      "weight": 1.0
-    },
-    {
-      "source": "scripts_dev_db",
-      "target": "scripts_dev_db_stop_cluster",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/dev-db.ps1",
-      "source_location": "L75",
+      "source_location": "L86",
       "weight": 1.0
     },
     {
@@ -11806,6 +12196,204 @@
       "weight": 1.0
     },
     {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_inventory_level",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_tenant",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L228",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_inventory_level",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_variant",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L231",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_inventory_level",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_location",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L234",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_location",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_tenant",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L225",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_membership",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_tenant",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L210",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_membership",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_user",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L213",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_nuvemshop_connection",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_tenant",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L249",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_product",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_tenant",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L216",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_stock_movement",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_tenant",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L237",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_stock_movement",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_variant",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L240",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_stock_movement",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_location",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L243",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_stock_movement",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_stock_movement",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L246",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_sync_state",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_tenant",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L252",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_variant",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_tenant",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L219",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222145_init_migration_variant",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_product",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222145_init/migration.sql",
+      "source_location": "L222",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration_account",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_user",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration_session",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_user",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "apps_api_prisma_migrations_20260614222200_auth_better_auth_migration_two_factor",
+      "target": "apps_api_prisma_migrations_20260614222145_init_migration_user",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "apps/api/prisma/migrations/20260614222200_auth_better_auth/migration.sql",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
       "source": "apps_api_src_app_createapp",
       "target": "apps_api_src_middlewares_notfound_middleware_notfoundhandler",
       "relation": "indirect_call",
@@ -12183,5 +12771,5 @@
       "source_file": "PROJETO.md"
     }
   ],
-  "built_at_commit": "8343b24f6e5bc752f5d95ca48b40dcfb9f158b01"
+  "built_at_commit": "6266ebfd37249283df827f51a7fc17c1247ee32e"
 }
