@@ -5,8 +5,13 @@
 # Postgres. Fora do Codespace este arquivo fica inerte: o dev local no host
 # continua com ./scripts/dev-db.ps1 ou o docker-compose.yml da raiz.
 #
-# O serviço `db` espelha o docker-compose.yml da raiz (mesma imagem, mesmas
-# credenciais e mesmo nome de banco) para não haver divergência de ambiente.
+# O serviço `db` usa as mesmas credenciais e nome de banco do docker-compose.yml
+# da raiz. A imagem é `postgres:16` (não `:18` como a raiz): a imagem oficial da
+# 18 mudou o PGDATA padrão e o volume abaixo, montado em
+# `/var/lib/postgresql/data`, faz o container da 18 sair com erro no boot. A 16 é
+# compatível com o Prisma 5.22 e mantém o layout antigo.
+# (O docker-compose.yml da raiz tem o mesmo problema latente com `postgres:18` —
+#  reportar em separado; não é escopo desta branch.)
 services:
   app:
     image: mcr.microsoft.com/devcontainers/javascript-node:22
@@ -19,7 +24,7 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres:18
+    image: postgres:16
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
