@@ -134,6 +134,11 @@ revisor → sênior verifica → reporta. Correção trivial de uma linha o sên
 direto, mas passa pelo revisor do mesmo jeito. Nada entra com achado crítico em
 aberto.
 
+O ciclo obrigatório acima é a espinha. As skills do Superpowers (brainstorming,
+writing-plans, systematic-debugging, test-driven-development,
+verification-before-completion) rodam DENTRO dele, nunca no lugar dele.
+Instrução explícita do Lucas ou spec fechada têm prioridade sobre qualquer skill.
+
 **Exceção (decisão do Lucas):** tarefa de *infraestrutura do próprio fluxo* —
 hooks, `.claude/agents/*.md`, `.claude/settings.json`, scripts de verificação do
 `package.json`, este CLAUDE.md — dispensa spec e aprovação prévia (ele não tem
