@@ -1,0 +1,22 @@
+{
+  "name": "gestao-comercial-web",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/gestao-comercial-web",
+  "forwardPorts": [3000, 3001],
+  "portsAttributes": {
+    "3000": { "label": "web (Next.js)", "onAutoForward": "notify" },
+    "3001": { "label": "api (Express)", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postAttachCommand": "echo 'Abra pelo VS Code Desktop: Ctrl+Shift+P > Codespaces: Open in VS Code Desktop. Pelo editor no navegador o login NAO funciona - ver .devcontainer/README.md'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Prisma.prisma",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}

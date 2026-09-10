@@ -1,0 +1,36 @@
+# Ambiente de desenvolvimento para GitHub Codespaces (ou "Reopen in Container").
+#
+# Node 22 + Postgres 18, ambos DENTRO do Codespace. O banco não sai pela rede,
+# então contorna proxy corporativo (Netskope) que bloqueia o protocolo do
+# Postgres. Fora do Codespace este arquivo fica inerte: o dev local no host
+# continua com ./scripts/dev-db.ps1 ou o docker-compose.yml da raiz.
+#
+# O serviço `db` espelha o docker-compose.yml da raiz (mesma imagem, mesmas
+# credenciais e mesmo nome de banco) para não haver divergência de ambiente.
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/javascript-node:22
+    command: sleep infinity
+    volumes:
+      # Monta só este repo, no caminho exato do workspaceFolder do devcontainer.
+      - ..:/workspaces/gestao-comercial-web:cached
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gestao_comercial
+    volumes:
+      - gestao_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d gestao_comercial"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  gestao_pgdata:
