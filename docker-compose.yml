@@ -9,7 +9,11 @@
 # `postgres` abaixo é usado apenas por migrations/seed (DIRECT_DATABASE_URL).
 services:
   postgres:
-    image: postgres:18
+    # postgres:16 (não :18): a imagem oficial da 18 mudou o PGDATA padrão e o
+    # volume abaixo, montado em /var/lib/postgresql/data, faz o container sair
+    # com código 1 no boot. A 16 mantém o layout antigo e é compatível com o
+    # Prisma 5.22. Comprovado no .devcontainer, que usa a mesma imagem.
+    image: postgres:16
     container_name: gestao_postgres
     environment:
       POSTGRES_USER: postgres
