@@ -7,6 +7,7 @@
 // exemplo do seed pelos produtos reais. Uso:
 //   npx tsx scripts/import-inventory.ts "<caminho do arquivo .xlsx>"
 import "dotenv/config";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as XLSX from "xlsx";
@@ -30,7 +31,10 @@ export interface InventoryRow {
  * fixo, para não quebrar se alguém reordenar colunas na planilha.
  */
 export function readInventoryRows(filePath: string): InventoryRow[] {
-  const workbook = XLSX.readFile(filePath);
+  // XLSX.read() lê de buffer, sem depender de acesso a fs por dentro do
+  // pacote — mais portável entre resolvedores de módulo que XLSX.readFile().
+  const buffer = fs.readFileSync(filePath);
+  const workbook = XLSX.read(buffer, { type: "buffer" });
   const sheet = workbook.Sheets[SHEET_NAME];
   if (!sheet) {
     throw new Error(
