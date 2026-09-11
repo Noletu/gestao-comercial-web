@@ -52,6 +52,14 @@ de falhas/erros novos.
   `apps/api`** (`vitest`); `npm test` na raiz **não existe** e `apps/web` não tem
   test runner. Os testes de `api` compartilham o mesmo Postgres e rodam em série
   (`fileParallelism: false`) — não presuma isolamento entre arquivos.
+- **Desde a gestão manual de estoque (`specs/estoque-manual.md`, Épico 1
+  reordenado): o banco de dev é o MESMO onde vive o estoque real do Lucas.**
+  Rodar `npm test -w api` ou `npm run db:seed` apaga esse estoque (trunca as
+  mesmas tabelas). Depois de rodar qualquer um dos dois, recuperar com
+  `npm run db:import-inventory -- "<caminho do .xlsx do Lucas>"` (de dentro de
+  `apps/api`) antes de devolver acesso — nunca deixar o Lucas com o banco só
+  com dados de teste. Resolver de vez é a issue #3 (banco de teste dedicado),
+  ainda aberta.
 - **Não há hook que rode isso automaticamente nem que bloqueie fim de turno ou
   commit.** A conferência é responsabilidade de quem edita, e o sênior a refaz.
 
