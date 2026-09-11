@@ -172,7 +172,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "applystockmovementinput",
       "source_file": "apps/api/src/services/inventory.service.ts",
@@ -185,7 +185,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "applystockmovementresult",
       "source_file": "apps/api/src/services/inventory.service.ts",
@@ -198,7 +198,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "movementkind",
       "source_file": "apps/api/src/services/inventory.service.ts",
@@ -211,7 +211,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "recordmovementinput",
       "source_file": "apps/api/src/services/inventory.service.ts",
@@ -224,37 +224,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "stockvalidationerror",
       "source_file": "apps/api/src/services/inventory.service.ts",
       "source_location": "L68"
-    },
-    {
-      "id": "apps_api_src_services_products_service_productlistitem",
-      "label": "ProductListItem",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "productlistitem",
-      "source_file": "apps/api/src/services/products.service.ts",
-      "source_location": "L7"
-    },
-    {
-      "id": "apps_api_src_services_products_service_productvalidationerror",
-      "label": "ProductValidationError",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "productvalidationerror",
-      "source_file": "apps/api/src/services/products.service.ts",
-      "source_location": "L5"
     },
     {
       "id": "apps_web_app_dashboard_page_me",
@@ -319,7 +293,7 @@
       "file_type": "code",
       "norm_label": "importsummary",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L102"
+      "source_location": "L106"
     },
     {
       "id": "apps_api_scripts_import_inventory_inventoryrow",
@@ -332,7 +306,7 @@
       "file_type": "code",
       "norm_label": "inventoryrow",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L20"
+      "source_location": "L21"
     },
     {
       "id": "apps_api_src_auth_auth_auth",
@@ -398,6 +372,32 @@
       "norm_label": "healthstatus",
       "source_file": "apps/api/src/services/health.service.ts",
       "source_location": "L1"
+    },
+    {
+      "id": "apps_api_src_services_products_service_productlistitem",
+      "label": "ProductListItem",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "productlistitem",
+      "source_file": "apps/api/src/services/products.service.ts",
+      "source_location": "L7"
+    },
+    {
+      "id": "apps_api_src_services_products_service_productvalidationerror",
+      "label": "ProductValidationError",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "productvalidationerror",
+      "source_file": "apps/api/src/services/products.service.ts",
+      "source_location": "L5"
     },
     {
       "id": "apps_api_src_auth_tests_auth_reset_test_extracttoken",
@@ -494,6 +494,18 @@
       "norm_label": "fortenant()",
       "source_file": "apps/api/src/db/tenant.ts",
       "source_location": "L49"
+    },
+    {
+      "id": "apps_api_src_db_tenant_withtenant",
+      "label": "withTenant()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "db/index.ts",
+      "file_type": "code",
+      "norm_label": "withtenant()",
+      "source_file": "apps/api/src/db/tenant.ts",
+      "source_location": "L71"
     },
     {
       "id": "apps_api_src_db_tests_rls_isolation_test_createtenant",
@@ -700,24 +712,12 @@
       "source_location": "L3"
     },
     {
-      "id": "apps_api_src_db_tenant_withtenant",
-      "label": "withTenant()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "withtenant()",
-      "source_file": "apps/api/src/db/tenant.ts",
-      "source_location": "L71"
-    },
-    {
       "id": "apps_api_src_services_inventory_service_applystockmovement",
       "label": "applyStockMovement()",
       "_callable": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "applystockmovement()",
       "source_file": "apps/api/src/services/inventory.service.ts",
@@ -729,7 +729,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "recomputestock()",
       "source_file": "apps/api/src/services/inventory.service.ts",
@@ -741,35 +741,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "recordmovement()",
       "source_file": "apps/api/src/services/inventory.service.ts",
       "source_location": "L38"
-    },
-    {
-      "id": "apps_api_src_services_products_service_createproduct",
-      "label": "createProduct()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "createproduct()",
-      "source_file": "apps/api/src/services/products.service.ts",
-      "source_location": "L51"
-    },
-    {
-      "id": "apps_api_src_services_products_service_listproducts",
-      "label": "listProducts()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "listproducts()",
-      "source_file": "apps/api/src/services/products.service.ts",
-      "source_location": "L21"
     },
     {
       "id": "apps_api_src_services_tests_inventory_movements_test_createvariant",
@@ -777,7 +753,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "createvariant()",
       "source_file": "apps/api/src/services/__tests__/inventory.movements.test.ts",
@@ -789,7 +765,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "stockof()",
       "source_file": "apps/api/src/services/__tests__/inventory.movements.test.ts",
@@ -801,7 +777,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "truncateall()",
       "source_file": "apps/api/src/services/__tests__/inventory.movements.test.ts",
@@ -1093,7 +1069,7 @@
       "file_type": "code",
       "norm_label": "createowner()",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L91"
+      "source_location": "L95"
     },
     {
       "id": "apps_api_scripts_import_inventory_readinventoryrows",
@@ -1105,7 +1081,7 @@
       "file_type": "code",
       "norm_label": "readinventoryrows()",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L32"
+      "source_location": "L33"
     },
     {
       "id": "apps_api_scripts_import_inventory_requireenv",
@@ -1117,7 +1093,7 @@
       "file_type": "code",
       "norm_label": "requireenv()",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L80"
+      "source_location": "L84"
     },
     {
       "id": "apps_api_scripts_import_inventory_runimport",
@@ -1129,7 +1105,7 @@
       "file_type": "code",
       "norm_label": "runimport()",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L114"
+      "source_location": "L118"
     },
     {
       "id": "apps_api_src_tests_import_inventory_test_writesampleworkbook",
@@ -1274,6 +1250,63 @@
       "norm_label": "gethealth()",
       "source_file": "apps/api/src/services/health.service.ts",
       "source_location": "L11"
+    },
+    {
+      "id": "apps_api_src_services_products_service_createproduct",
+      "label": "createProduct()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "createproduct()",
+      "source_file": "apps/api/src/services/products.service.ts",
+      "source_location": "L51"
+    },
+    {
+      "id": "apps_api_src_services_products_service_listproducts",
+      "label": "listProducts()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "listproducts()",
+      "source_file": "apps/api/src/services/products.service.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "apps_api_scripts_provision_db_role",
+      "label": "provision-db-role.mjs",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "db/index.ts",
+      "file_type": "code",
+      "norm_label": "provision-db-role.mjs",
+      "source_file": "apps/api/scripts/provision-db-role.mjs",
+      "source_location": "L1"
+    },
+    {
+      "id": "apps_api_scripts_provision_db_role_prisma",
+      "label": "prisma",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "db/index.ts",
+      "file_type": "code",
+      "norm_label": "prisma",
+      "source_file": "apps/api/scripts/provision-db-role.mjs",
+      "source_location": "L41"
+    },
+    {
+      "id": "apps_api_scripts_provision_db_role_safepassword",
+      "label": "safePassword",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "db/index.ts",
+      "file_type": "code",
+      "norm_label": "safepassword",
+      "source_file": "apps/api/scripts/provision-db-role.mjs",
+      "source_location": "L39"
     },
     {
       "id": "apps_api_src_auth_tests_auth_reset_test",
@@ -1516,6 +1549,17 @@
       "norm_label": "otplib",
       "source_file": "apps/api/package.json",
       "source_location": "L45"
+    },
+    {
+      "id": "ref_prisma_client",
+      "label": "@prisma/client",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "db/index.ts",
+      "file_type": "concept",
+      "norm_label": "@prisma/client",
+      "source_file": "apps/api/package.json",
+      "source_location": "L30"
     },
     {
       "id": "ref_supertest",
@@ -3179,7 +3223,7 @@
       "source_location": "L3"
     },
     {
-      "id": "apps_api_package_json_ref_better_auth",
+      "id": "ref_better_auth",
       "label": "better-auth",
       "_origin": "ast",
       "community": 2,
@@ -3188,61 +3232,6 @@
       "norm_label": "better-auth",
       "source_file": "apps/api/package.json",
       "source_location": "L31"
-    },
-    {
-      "id": "apps_api_package_json_ref_eslint",
-      "label": "eslint",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "api/package.json",
-      "file_type": "concept",
-      "norm_label": "eslint",
-      "source_file": "apps/api/package.json",
-      "source_location": "L44"
-    },
-    {
-      "id": "apps_api_package_json_ref_gestao_eslint_config",
-      "label": "@gestao/eslint-config",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "api/package.json",
-      "file_type": "concept",
-      "norm_label": "@gestao/eslint-config",
-      "source_file": "apps/api/package.json",
-      "source_location": "L37"
-    },
-    {
-      "id": "apps_api_package_json_ref_gestao_typescript_config",
-      "label": "@gestao/typescript-config",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "api/package.json",
-      "file_type": "concept",
-      "norm_label": "@gestao/typescript-config",
-      "source_file": "apps/api/package.json",
-      "source_location": "L38"
-    },
-    {
-      "id": "apps_api_package_json_ref_types_node",
-      "label": "@types/node",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "api/package.json",
-      "file_type": "concept",
-      "norm_label": "@types/node",
-      "source_file": "apps/api/package.json",
-      "source_location": "L41"
-    },
-    {
-      "id": "apps_api_package_json_ref_typescript",
-      "label": "typescript",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "api/package.json",
-      "file_type": "concept",
-      "norm_label": "typescript",
-      "source_file": "apps/api/package.json",
-      "source_location": "L49"
     },
     {
       "id": "ref_cors",
@@ -3265,6 +3254,39 @@
       "norm_label": "dotenv",
       "source_file": "apps/api/package.json",
       "source_location": "L43"
+    },
+    {
+      "id": "ref_eslint",
+      "label": "eslint",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "api/package.json",
+      "file_type": "concept",
+      "norm_label": "eslint",
+      "source_file": "apps/api/package.json",
+      "source_location": "L44"
+    },
+    {
+      "id": "ref_gestao_eslint_config",
+      "label": "@gestao/eslint-config",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "api/package.json",
+      "file_type": "concept",
+      "norm_label": "@gestao/eslint-config",
+      "source_file": "apps/api/package.json",
+      "source_location": "L37"
+    },
+    {
+      "id": "ref_gestao_typescript_config",
+      "label": "@gestao/typescript-config",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "api/package.json",
+      "file_type": "concept",
+      "norm_label": "@gestao/typescript-config",
+      "source_file": "apps/api/package.json",
+      "source_location": "L38"
     },
     {
       "id": "ref_prisma",
@@ -3311,6 +3333,17 @@
       "source_location": "L40"
     },
     {
+      "id": "ref_types_node",
+      "label": "@types/node",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "api/package.json",
+      "file_type": "concept",
+      "norm_label": "@types/node",
+      "source_file": "apps/api/package.json",
+      "source_location": "L41"
+    },
+    {
       "id": "ref_types_supertest",
       "label": "@types/supertest",
       "_origin": "ast",
@@ -3320,6 +3353,17 @@
       "norm_label": "@types/supertest",
       "source_file": "apps/api/package.json",
       "source_location": "L42"
+    },
+    {
+      "id": "ref_typescript",
+      "label": "typescript",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "api/package.json",
+      "file_type": "concept",
+      "norm_label": "typescript",
+      "source_file": "apps/api/package.json",
+      "source_location": "L49"
     },
     {
       "id": "prettierrc",
@@ -3872,48 +3916,15 @@
       "source_location": "L3"
     },
     {
-      "id": "eslint",
-      "label": "eslint",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "eslint",
-      "confidence": "EXTRACTED",
-      "file_type": "code",
-      "norm_label": "eslint",
-      "source_file": "eslint"
-    },
-    {
       "id": "packages_eslint_config_base",
       "label": "base.js",
       "_origin": "ast",
       "community": 26,
-      "community_name": "eslint",
+      "community_name": "base.js",
       "file_type": "code",
       "norm_label": "base.js",
       "source_file": "packages/eslint-config/base.js",
       "source_location": "L1"
-    },
-    {
-      "id": "packages_eslint_config_next",
-      "label": "next.js",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "eslint",
-      "file_type": "code",
-      "norm_label": "next.js",
-      "source_file": "packages/eslint-config/next.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "next",
-      "label": "next",
-      "_origin": "ast",
-      "community": 27,
-      "community_name": "next.config.mjs",
-      "confidence": "EXTRACTED",
-      "file_type": "code",
-      "norm_label": "next",
-      "source_file": "next"
     },
     {
       "id": "apps_web_next_config",
@@ -3959,7 +3970,7 @@
       "node_kind": "heading",
       "norm_label": "10. fora desta spec, decisoes futuras ja sinalizadas",
       "source_file": "specs/estoque-manual.md",
-      "source_location": "L280"
+      "source_location": "L286"
     },
     {
       "id": "specs_estoque_manual_1_objetivo",
@@ -4091,7 +4102,7 @@
       "node_kind": "heading",
       "norm_label": "7. api (nova, nao mexe em `/api/me*`)",
       "source_file": "specs/estoque-manual.md",
-      "source_location": "L204"
+      "source_location": "L210"
     },
     {
       "id": "specs_estoque_manual_8_web",
@@ -4103,7 +4114,7 @@
       "node_kind": "heading",
       "norm_label": "8. web",
       "source_file": "specs/estoque-manual.md",
-      "source_location": "L244"
+      "source_location": "L250"
     },
     {
       "id": "specs_estoque_manual_9_como_o_lucas_valida",
@@ -4115,7 +4126,7 @@
       "node_kind": "heading",
       "norm_label": "9. como o lucas valida",
       "source_file": "specs/estoque-manual.md",
-      "source_location": "L264"
+      "source_location": "L270"
     },
     {
       "id": "specs_estoque_manual_gest\u00e3o_manual_de_estoque_v1_sem_nuvemshop",
@@ -4444,102 +4455,14 @@
       "source_location": "L119"
     },
     {
-      "id": "apps_api_scripts_provision_db_role",
-      "label": "provision-db-role.mjs",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "provision-db-role.mjs",
-      "source_file": "apps/api/scripts/provision-db-role.mjs",
-      "source_location": "L1"
-    },
-    {
-      "id": "apps_api_scripts_provision_db_role_prisma",
-      "label": "prisma",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "prisma",
-      "source_file": "apps/api/scripts/provision-db-role.mjs",
-      "source_location": "L41"
-    },
-    {
-      "id": "apps_api_scripts_provision_db_role_safepassword",
-      "label": "safePassword",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "safepassword",
-      "source_file": "apps/api/scripts/provision-db-role.mjs",
-      "source_location": "L39"
-    },
-    {
-      "id": "apps_api_src_routes_products_route",
-      "label": "products.route.ts",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "products.route.ts",
-      "source_file": "apps/api/src/routes/products.route.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "apps_api_src_routes_products_route_createproductschema",
-      "label": "createProductSchema",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "createproductschema",
-      "source_file": "apps/api/src/routes/products.route.ts",
-      "source_location": "L28"
-    },
-    {
-      "id": "apps_api_src_routes_products_route_movementschema",
-      "label": "movementSchema",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "movementschema",
-      "source_file": "apps/api/src/routes/products.route.ts",
-      "source_location": "L59"
-    },
-    {
-      "id": "apps_api_src_routes_products_route_productsrouter",
-      "label": "productsRouter",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "productsrouter",
-      "source_file": "apps/api/src/routes/products.route.ts",
-      "source_location": "L18"
-    },
-    {
       "id": "apps_api_src_services_inventory_service",
       "label": "inventory.service.ts",
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "inventory.service.ts",
       "source_file": "apps/api/src/services/inventory.service.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "apps_api_src_services_products_service",
-      "label": "products.service.ts",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "code",
-      "norm_label": "products.service.ts",
-      "source_file": "apps/api/src/services/products.service.ts",
       "source_location": "L1"
     },
     {
@@ -4547,22 +4470,11 @@
       "label": "inventory.movements.test.ts",
       "_origin": "ast",
       "community": 36,
-      "community_name": "products.route.ts",
+      "community_name": "inventory.service.ts",
       "file_type": "code",
       "norm_label": "inventory.movements.test.ts",
       "source_file": "apps/api/src/services/__tests__/inventory.movements.test.ts",
       "source_location": "L1"
-    },
-    {
-      "id": "ref_prisma_client",
-      "label": "@prisma/client",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "products.route.ts",
-      "file_type": "concept",
-      "norm_label": "@prisma/client",
-      "source_file": "apps/api/package.json",
-      "source_location": "L30"
     },
     {
       "id": "devcontainer_readme",
@@ -5106,6 +5018,17 @@
       "source_location": "L31"
     },
     {
+      "id": "packages_eslint_config_next",
+      "label": "next.js",
+      "_origin": "ast",
+      "community": 42,
+      "community_name": "next.js",
+      "file_type": "code",
+      "norm_label": "next.js",
+      "source_file": "packages/eslint-config/next.js",
+      "source_location": "L1"
+    },
+    {
       "id": "package",
       "label": "package.json",
       "_origin": "ast",
@@ -5535,6 +5458,50 @@
       "source_location": "L12"
     },
     {
+      "id": "apps_api_src_routes_products_route",
+      "label": "products.route.ts",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "products.route.ts",
+      "source_file": "apps/api/src/routes/products.route.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "apps_api_src_routes_products_route_createproductschema",
+      "label": "createProductSchema",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "createproductschema",
+      "source_file": "apps/api/src/routes/products.route.ts",
+      "source_location": "L28"
+    },
+    {
+      "id": "apps_api_src_routes_products_route_movementschema",
+      "label": "movementSchema",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "movementschema",
+      "source_file": "apps/api/src/routes/products.route.ts",
+      "source_location": "L59"
+    },
+    {
+      "id": "apps_api_src_routes_products_route_productsrouter",
+      "label": "productsRouter",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "productsrouter",
+      "source_file": "apps/api/src/routes/products.route.ts",
+      "source_location": "L18"
+    },
+    {
       "id": "apps_api_src_services_health_service",
       "label": "health.service.ts",
       "_origin": "ast",
@@ -5543,6 +5510,17 @@
       "file_type": "code",
       "norm_label": "health.service.ts",
       "source_file": "apps/api/src/services/health.service.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "apps_api_src_services_products_service",
+      "label": "products.service.ts",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "app.ts",
+      "file_type": "code",
+      "norm_label": "products.service.ts",
+      "source_file": "apps/api/src/services/products.service.ts",
       "source_location": "L1"
     },
     {
@@ -6580,7 +6558,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L115",
+      "source_location": "L119",
       "weight": 1.0
     },
     {
@@ -6592,7 +6570,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L117",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -6604,7 +6582,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L132",
+      "source_location": "L136",
       "weight": 1.0
     },
     {
@@ -6681,18 +6659,6 @@
     },
     {
       "source": "apps_api_src_services_inventory_service_applystockmovement",
-      "target": "apps_api_src_db_tenant_withtenant",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "apps/api/src/services/inventory.service.ts",
-      "source_location": "L106",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_api_src_services_inventory_service_applystockmovement",
       "target": "apps_api_src_services_inventory_service_stockvalidationerror",
       "relation": "calls",
       "_origin": "ast",
@@ -6728,30 +6694,6 @@
       "weight": 1.0
     },
     {
-      "source": "apps_api_src_services_inventory_service_recordmovement",
-      "target": "apps_api_src_db_tenant_withtenant",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "apps/api/src/services/inventory.service.ts",
-      "source_location": "L64",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_api_src_services_products_service_createproduct",
-      "target": "apps_api_src_db_tenant_withtenant",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "apps/api/src/services/products.service.ts",
-      "source_location": "L56",
-      "weight": 1.0
-    },
-    {
       "source": "apps_api_src_services_products_service_createproduct",
       "target": "apps_api_src_services_products_service_productvalidationerror",
       "relation": "calls",
@@ -6761,18 +6703,6 @@
       "context": "call",
       "source_file": "apps/api/src/services/products.service.ts",
       "source_location": "L80",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_api_src_services_products_service_listproducts",
-      "target": "apps_api_src_db_tenant_fortenant",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "apps/api/src/services/products.service.ts",
-      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -6957,7 +6887,7 @@
     },
     {
       "source": "apps_api_package",
-      "target": "apps_api_package_json_ref_better_auth",
+      "target": "ref_better_auth",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -7005,7 +6935,7 @@
     },
     {
       "source": "apps_api_package",
-      "target": "apps_api_package_json_ref_gestao_eslint_config",
+      "target": "ref_gestao_eslint_config",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -7017,7 +6947,7 @@
     },
     {
       "source": "apps_api_package",
-      "target": "apps_api_package_json_ref_gestao_typescript_config",
+      "target": "ref_gestao_typescript_config",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -7053,7 +6983,7 @@
     },
     {
       "source": "apps_api_package",
-      "target": "apps_api_package_json_ref_types_node",
+      "target": "ref_types_node",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -7089,7 +7019,7 @@
     },
     {
       "source": "apps_api_package",
-      "target": "apps_api_package_json_ref_eslint",
+      "target": "ref_eslint",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -7149,7 +7079,7 @@
     },
     {
       "source": "apps_api_package",
-      "target": "apps_api_package_json_ref_typescript",
+      "target": "ref_typescript",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -7209,18 +7139,6 @@
     },
     {
       "source": "apps_api_scripts_import_inventory",
-      "target": "apps_api_src_db_tenant_adminprisma",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L13",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_api_scripts_import_inventory",
       "target": "apps_api_src_auth_auth_auth",
       "relation": "imports",
       "_origin": "ast",
@@ -7228,7 +7146,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -7736,102 +7654,6 @@
       "weight": 1.0
     },
     {
-      "source": "apps_api_src_routes_tests_products_route_test",
-      "target": "apps_api_src_db_tenant_adminprisma",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "apps/api/src/routes/__tests__/products.route.test.ts",
-      "source_location": "L4",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_api_src_routes_tests_products_route_test",
-      "target": "apps_api_src_db_tenant_prisma",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "apps/api/src/routes/__tests__/products.route.test.ts",
-      "source_location": "L4",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_api_src_services_inventory_service",
-      "target": "apps_api_src_db_tenant_tenanttransaction",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "apps/api/src/services/inventory.service.ts",
-      "source_location": "L6",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_api_src_services_inventory_service",
-      "target": "apps_api_src_db_tenant_withtenant",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "apps/api/src/services/inventory.service.ts",
-      "source_location": "L6",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_api_src_services_products_service",
-      "target": "apps_api_src_db_tenant_fortenant",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "apps/api/src/services/products.service.ts",
-      "source_location": "L2",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_api_src_services_products_service",
-      "target": "apps_api_src_db_tenant_withtenant",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "apps/api/src/services/products.service.ts",
-      "source_location": "L2",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_api_src_services_tests_inventory_movements_test",
-      "target": "apps_api_src_db_tenant_adminprisma",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "apps/api/src/services/__tests__/inventory.movements.test.ts",
-      "source_location": "L2",
-      "weight": 1.0
-    },
-    {
-      "source": "apps_api_src_services_tests_inventory_movements_test",
-      "target": "apps_api_src_db_tenant_prisma",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "apps/api/src/services/__tests__/inventory.movements.test.ts",
-      "source_location": "L2",
-      "weight": 1.0
-    },
-    {
       "source": "apps_api_src_services_tests_inventory_movements_test",
       "target": "apps_api_src_services_inventory_service_applystockmovement",
       "relation": "imports",
@@ -8308,7 +8130,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -8320,7 +8142,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -8332,7 +8154,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -10254,7 +10076,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L102",
+      "source_location": "L106",
       "weight": 1.0
     },
     {
@@ -10265,7 +10087,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L114",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
@@ -10276,7 +10098,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -10287,7 +10109,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L32",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -10298,7 +10120,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L80",
+      "source_location": "L84",
       "weight": 1.0
     },
     {
@@ -10309,7 +10131,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "apps/api/scripts/import-inventory.ts",
-      "source_location": "L91",
+      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -13774,7 +13596,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "specs/estoque-manual.md",
-      "source_location": "L204",
+      "source_location": "L210",
       "weight": 1.0
     },
     {
@@ -13785,7 +13607,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "specs/estoque-manual.md",
-      "source_location": "L244",
+      "source_location": "L250",
       "weight": 1.0
     },
     {
@@ -13796,7 +13618,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "specs/estoque-manual.md",
-      "source_location": "L264",
+      "source_location": "L270",
       "weight": 1.0
     },
     {
@@ -13807,7 +13629,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "specs/estoque-manual.md",
-      "source_location": "L280",
+      "source_location": "L286",
       "weight": 1.0
     },
     {
@@ -13985,33 +13807,6 @@
       "source_file": "turbo.json",
       "source_location": "L27",
       "weight": 1.0
-    },
-    {
-      "source": "apps_web_next_config",
-      "target": "next",
-      "relation": "dynamic_import",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "apps/web/next.config.mjs"
-    },
-    {
-      "source": "packages_eslint_config_base",
-      "target": "eslint",
-      "relation": "dynamic_import",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "packages/eslint-config/base.js"
-    },
-    {
-      "source": "packages_eslint_config_next",
-      "target": "eslint",
-      "relation": "dynamic_import",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "packages/eslint-config/next.js"
     },
     {
       "source": "apps_api_src_auth_email_consoleemailsender",
@@ -14436,5 +14231,5 @@
       "source_file": "PROJETO.md"
     }
   ],
-  "built_at_commit": "e59a1978c6923d0ee173e9ef8058d272bac89b02"
+  "built_at_commit": "0317e138074b41dc81cbbaa4e2de14b04993d735"
 }
