@@ -57,11 +57,11 @@ async function setupTenantWithUser(
 async function createVariant(
   tenantId: string,
   name: string,
-  opts: { sku?: string; stock?: number } = {},
+  opts: { sku?: string; stock?: number; price?: number; cost?: number } = {},
 ): Promise<string> {
   const product = await adminPrisma.product.create({ data: { tenantId, name } });
   const variant = await adminPrisma.variant.create({
-    data: { tenantId, productId: product.id, sku: opts.sku },
+    data: { tenantId, productId: product.id, sku: opts.sku, price: opts.price, cost: opts.cost },
   });
   if (opts.stock) {
     const location = await adminPrisma.location.findFirstOrThrow({
@@ -106,6 +106,9 @@ interface ProductListItem {
   name: string;
   sku: string | null;
   stock: number;
+  price: number | null;
+  cost: number | null;
+  margin: number | null;
 }
 
 describe("GET /api/products", () => {
@@ -148,6 +151,87 @@ describe("GET /api/products", () => {
     const res = await tenantA.agent.get("/api/products");
     const ids = (res.body.products as ProductListItem[]).map((p) => p.variantId);
     expect(ids).not.toContain(variantB);
+  });
+});
+
+/**
+ * PROVA (spec estoque-busca-filtro-preco.md §4.1/4.2/4.3): busca por SKU além
+ * de nome, filtro de estoque baixo (≤ 2, inclui zerado), combinação de busca +
+ * filtro (E, não OU), e margem calculada/nula nos casos certos.
+ */
+describe("GET /api/products - busca por SKU e filtro de estoque baixo", () => {
+  it("busca por SKU (além de nome), case-insensitive, contains", async () => {
+    const variantId = await createVariant(tenantA.tenantId, "Anel Dourado Único", {
+      sku: "COD-EXCLUSIVO-777",
+    });
+    const res = await tenantA.agent.get("/api/products").query({ q: "exclusivo-777" });
+    expect(res.status).toBe(200);
+    const ids = (res.body.products as ProductListItem[]).map((p) => p.variantId);
+    expect(ids).toContain(variantId);
+  });
+
+  it("lowStock=true traz só itens com estoque <= 2 (inclui zerado) e não traz o resto", async () => {
+    const zeroId = await createVariant(tenantA.tenantId, "Peça Zerada Filtro");
+    const lowId = await createVariant(tenantA.tenantId, "Peça Baixa Filtro", { stock: 2 });
+    const okId = await createVariant(tenantA.tenantId, "Peça Ok Filtro", { stock: 10 });
+    const res = await tenantA.agent.get("/api/products").query({ lowStock: "true" });
+    expect(res.status).toBe(200);
+    const ids = (res.body.products as ProductListItem[]).map((p) => p.variantId);
+    expect(ids).toContain(zeroId);
+    expect(ids).toContain(lowId);
+    expect(ids).not.toContain(okId);
+  });
+
+  it("q e lowStock juntos combinam (E, não OU)", async () => {
+    const matchLow = await createVariant(tenantA.tenantId, "Combo Filtro Junto Baixo", {
+      stock: 1,
+    });
+    const matchHigh = await createVariant(tenantA.tenantId, "Combo Filtro Junto Alto", {
+      stock: 20,
+    });
+    const res = await tenantA.agent
+      .get("/api/products")
+      .query({ q: "combo filtro junto", lowStock: "true" });
+    expect(res.status).toBe(200);
+    const ids = (res.body.products as ProductListItem[]).map((p) => p.variantId);
+    expect(ids).toContain(matchLow);
+    expect(ids).not.toContain(matchHigh);
+  });
+});
+
+describe("GET /api/products - preço, custo e margem", () => {
+  it("inclui price, cost e margin calculados no item da lista", async () => {
+    const created = await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Item Com Margem Listagem", price: 200, cost: 150 });
+    const res = await tenantA.agent.get("/api/products");
+    const item = (res.body.products as ProductListItem[]).find(
+      (p) => p.variantId === created.body.variantId,
+    );
+    expect(item).toMatchObject({ price: 200, cost: 150, margin: 25 });
+  });
+
+  it("margem é null quando falta price", async () => {
+    const created = await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Sem Preço Margem", cost: 10 });
+    expect(created.body.price).toBeNull();
+    expect(created.body.margin).toBeNull();
+  });
+
+  it("margem é null quando falta cost", async () => {
+    const created = await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Sem Custo Margem", price: 50 });
+    expect(created.body.cost).toBeNull();
+    expect(created.body.margin).toBeNull();
+  });
+
+  it("margem é null quando price é 0 (nunca 0% nem Infinity)", async () => {
+    const created = await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Preço Zero Margem", price: 0, cost: 5 });
+    expect(created.body.margin).toBeNull();
   });
 });
 
@@ -202,6 +286,124 @@ describe("POST /api/products", () => {
         (p) => p.name === "Produto da B",
       ),
     ).toBe(false);
+  });
+
+  it("aceita price e cost e devolve o item com eles preenchidos", async () => {
+    const res = await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Produto Com Preco Cadastro", price: 120, cost: 90 });
+    expect(res.status).toBe(201);
+    expect(res.body).toMatchObject({ price: 120, cost: 90, margin: 25 });
+  });
+
+  it("rejeita price negativo com 400", async () => {
+    const res = await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Produto Preco Negativo", price: -1 });
+    expect(res.status).toBe(400);
+  });
+
+  it("rejeita cost negativo com 400", async () => {
+    const res = await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Produto Custo Negativo", cost: -1 });
+    expect(res.status).toBe(400);
+  });
+});
+
+/**
+ * PROVA (spec estoque-busca-filtro-preco.md §4.5): edição substitui nome,
+ * SKU, preço e custo por completo — campo omitido limpa o valor (vira null),
+ * SKU duplicado responde 400 (não 500), e uma loja não edita variante de
+ * outra loja.
+ */
+describe("PATCH /api/products/:variantId", () => {
+  it("atualiza nome, sku, price e cost e devolve a margem recalculada", async () => {
+    const variantId = await createVariant(tenantA.tenantId, "Produto Original Edicao");
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Produto Editado", sku: "EDIT-SKU-1", price: 80, cost: 40 });
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      variantId,
+      name: "Produto Editado",
+      sku: "EDIT-SKU-1",
+      price: 80,
+      cost: 40,
+      margin: 50,
+    });
+  });
+
+  it("SKU duplicado na edição responde 400, não 500", async () => {
+    await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Item Existente Edicao", sku: "SKU-EDICAO-EXISTENTE" });
+    const variantId = await createVariant(tenantA.tenantId, "Item A Editar Sku Duplicado");
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Item A Editar Sku Duplicado", sku: "SKU-EDICAO-EXISTENTE" });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe(
+      "Esse código já está sendo usado por outro produto.",
+    );
+  });
+
+  it("omitir um campo preenchido na edição limpa o valor (vira null)", async () => {
+    const created = await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Com Custo Inicial Edicao", sku: "COM-CUSTO-1", price: 100, cost: 60 });
+    const variantId = created.body.variantId as string;
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Com Custo Inicial Edicao", sku: "COM-CUSTO-1", price: 100 });
+    expect(res.status).toBe(200);
+    expect(res.body.cost).toBeNull();
+    expect(res.body.margin).toBeNull();
+  });
+
+  it("sku vazio ou omitido na edição limpa o valor (vira null)", async () => {
+    const createdEmpty = await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Com Sku Vazio Edicao", sku: "COM-SKU-VAZIO-1" });
+    const resEmpty = await tenantA.agent
+      .patch(`/api/products/${createdEmpty.body.variantId}`)
+      .send({ name: "Com Sku Vazio Edicao", sku: "" });
+    expect(resEmpty.status).toBe(200);
+    expect(resEmpty.body.sku).toBeNull();
+
+    const createdOmitido = await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Com Sku Omitido Edicao", sku: "COM-SKU-OMITIDO-1" });
+    const resOmitido = await tenantA.agent
+      .patch(`/api/products/${createdOmitido.body.variantId}`)
+      .send({ name: "Com Sku Omitido Edicao" });
+    expect(resOmitido.status).toBe(200);
+    expect(resOmitido.body.sku).toBeNull();
+  });
+
+  it("nome vazio na edição responde 400, não 500", async () => {
+    const variantId = await createVariant(tenantA.tenantId, "Produto Nome Vazio Edicao");
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "" });
+    expect(res.status).toBe(400);
+  });
+
+  it("preço negativo na edição responde 400, não 500", async () => {
+    const variantId = await createVariant(tenantA.tenantId, "Produto Preco Negativo Edicao");
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Produto Preco Negativo Edicao", price: -10 });
+    expect(res.status).toBe(400);
+  });
+
+  it("não edita variante de outra loja", async () => {
+    const variantB = await createVariant(tenantB.tenantId, "Produto Exclusivo B Edicao");
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantB}`)
+      .send({ name: "Tentativa De Edicao Indevida" });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Produto não encontrado.");
   });
 });
 
