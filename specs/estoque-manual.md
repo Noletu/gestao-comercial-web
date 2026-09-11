@@ -19,8 +19,8 @@ escopo).
 
 - Conexão/sincronização com a Nuvemshop.
 - Alerta de estoque baixo / estoque mínimo configurável (a coluna existe na
-  planilha antiga mas nunca foi usada — 0 de 66 itens ativos tem valor).
-- Importar os ~693 itens da planilha com estoque zerado (histórico/descontinuado).
+  planilha antiga mas nunca foi usada — 0 dos itens ativos tem valor).
+- Importar os itens da planilha com estoque zerado (histórico/descontinuado).
 - Importar o histórico de movimentações da planilha (~243 entradas + ~245
   saídas registradas ao longo dos anos).
 - Tela de "importar planilha" dentro do aplicativo — a importação dos dados
@@ -37,7 +37,7 @@ escopo).
 A suíte de testes (`npm test -w api`) roda contra o mesmo banco Postgres de
 desenvolvimento e **trunca as tabelas de negócio** — é assim desde antes desta
 spec (issue #3 em aberto, banco de teste dedicado nunca foi feito). A partir do
-momento em que os 66 itens reais forem importados, rodar a suíte apaga esses
+momento em que os itens reais forem importados, rodar a suíte apaga esses
 dados junto.
 
 Decisão do Lucas: aceitar o risco por agora, não abrir uma frente nova pra
@@ -177,7 +177,13 @@ linha de comando (não fixar o nome do arquivo do Lucas no código).
 
 Comportamento:
 1. Ler a aba `EstoqueAtual-e-Cadastro` do arquivo indicado.
-2. Filtrar as linhas com "Estoque atual" > 0 (66 hoje).
+2. Filtrar as linhas com "Estoque atual" > 0 (123 hoje — a contagem de "66"
+   estimada no brainstorming original era baseada só nas linhas com "Código"
+   preenchido; a planilha real tem mais 57 itens de estoque com nome,
+   fornecedor e quantidade preenchidos mas sem código. Decisão do Lucas,
+   confirmada depois da spec fechada: importar todo item com estoque > 0,
+   tenha código ou não — o código da planilha não entra no sistema de
+   qualquer forma, ver item 4 abaixo).
 3. **Truncar** as mesmas tabelas que `prisma/seed.ts` trunca (negócio + auth) e
    recriar do zero: tenant "Loja do Casal", os 2 usuários OWNER (mesmas
    variáveis de ambiente `SEED_OWNER1_EMAIL`/`SEED_OWNER2_EMAIL`/
