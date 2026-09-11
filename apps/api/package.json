@@ -13,7 +13,7 @@
     "start": "node dist/index.js",
     "start:prod": "prisma migrate deploy && node scripts/provision-db-role.mjs && node dist/index.js",
     "db:provision-role": "node -r dotenv/config scripts/provision-db-role.mjs",
-    "lint": "eslint \"src/**/*.ts\" --max-warnings 0",
+    "lint": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "postinstall": "prisma generate",
@@ -22,6 +22,7 @@
     "db:migrate:create": "prisma migrate dev --create-only",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
+    "db:import-inventory": "tsx scripts/import-inventory.ts",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset"
   },
@@ -46,6 +47,7 @@
     "supertest": "^7.0.0",
     "tsx": "^4.19.1",
     "typescript": "^5.5.4",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "xlsx": "^0.18.5"
   }
 }
