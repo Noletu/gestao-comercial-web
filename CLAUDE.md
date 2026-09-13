@@ -86,6 +86,15 @@ de falhas/erros novos.
 ## Git
 
 - Commits atômicos, **Conventional Commits**, mensagem em português.
+- Criar a branch de feature **antes** do primeiro commit de uma tarefa —
+  nunca commitar direto em `main`. Se acontecer: criar uma branch nova a
+  partir do HEAD atual (`git branch <nova> HEAD`), entrar nela
+  (`git switch <nova>` — **não** `git checkout <nova>`, banido logo abaixo),
+  e só então mover o ponteiro local de `main` de
+  volta com `git branch -f main origin/main` (**nunca** `git reset --hard`,
+  proibido pela seção "Nenhum agente apaga arquivo" abaixo). Depois disso,
+  push da branch nova e PR — a regra de "nunca faça push sem autorização
+  explícita", logo abaixo, continua valendo.
 - Nunca commite com falha **nova** na suíte. Nunca `git add -A`/`git add .` —
   adicione por caminho explícito.
 - Nunca faça push sem autorização explícita no prompt atual.
