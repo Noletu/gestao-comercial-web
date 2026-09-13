@@ -13,6 +13,7 @@
     "start": "node dist/index.js",
     "start:prod": "prisma migrate deploy && node scripts/provision-db-role.mjs && node dist/index.js",
     "db:provision-role": "node -r dotenv/config scripts/provision-db-role.mjs",
+    "db:test:setup": "node scripts/setup-test-db.mjs",
     "lint": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

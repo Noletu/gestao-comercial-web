@@ -107,14 +107,26 @@ npm run db:studio          # (opcional) abre o Prisma Studio
 
 ### Testes de integração do banco
 
+A suíte roda contra um **banco de teste dedicado** (`gestao_comercial_test`),
+separado do banco de desenvolvimento — nunca toca no estoque real. Antes da
+primeira rodada:
+
 ```bash
 cd apps/api
-npm test             # isolamento RLS entre tenants + consistência ledger↔estoque
+npm run db:test:setup   # cria apps/api/.env.test e o database gestao_comercial_test
+npm test                # isolamento RLS entre tenants + consistência ledger↔estoque
 ```
 
-> Os testes **truncam** as tabelas de negócio; rode `npm run db:seed` depois para
-> repovoar. (Atenção: usam o mesmo banco de dev — ver sugestão de banco de teste
-> dedicado no histórico da issue #2.)
+`db:test:setup` é idempotente: pode rodar de novo a qualquer momento (ex.: depois
+de uma migration nova) sem estrago. Ele cria `apps/api/.env.test` a partir de
+`.env.test.example` (se ainda não existir), cria o database de teste no mesmo
+cluster Postgres da porta 5433/5432, aplica o schema + RLS
+(`prisma migrate deploy`) e provisiona a senha do role `app_user`.
+
+`apps/api/vitest.setup.ts` trava a suíte se `apps/api/.env.test` não existir, ou
+se `DATABASE_URL`/`DIRECT_DATABASE_URL` apontarem para um database que não
+termine em `_test` — a suíte se recusa a rodar em vez de arriscar apagar dados
+reais (ver `specs/banco-de-teste-dedicado.md`).
 
 ## Variáveis de ambiente
 
