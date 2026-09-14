@@ -1,3 +1,62 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/**
+ * Tokens de cor do tema escuro (spec estoque-interface-parte-1.md §4.1).
+ * Expostos ao Tailwind via `tailwind.config.ts`. Nada de hex solto nos
+ * componentes — tudo referencia uma destas variáveis.
+ *
+ * `--ok-bg` / `--warn-bg` / `--danger-bg`: a spec pede "fundo a 12% de
+ * opacidade da própria cor" para os badges. Calculado à mão aqui como cor
+ * sólida pré-misturada contra `--bg` (WCAG: contraste texto×fundo, fórmula
+ * de luminância relativa) em vez de transparência real, por dois motivos —
+ * (1) evita depender de `color-mix()` (suporte recente em navegador) e (2)
+ * mantém o contraste FIXO: se fosse transparência de verdade, o badge de
+ * "Zerado" (--danger) cairia de ~4,6:1 para ~3,9:1 quando a linha da tabela
+ * está sob o cursor (fundo passa a `--surface-raised`, mais claro) — abaixo
+ * do mínimo de 4.5:1 exigido. Com a cor sólida, o contraste não muda com o
+ * que está por trás. Valores conferidos um a um: ok-bg 6.06:1, warn-bg
+ * 7.01:1, danger-bg 4.60:1 (o token `--danger` da spec é o mais próximo do
+ * limite; ajustar `--danger` em si mudaria a cor de marca do estado de erro
+ * em toda a tela, então preferimos ajustar apenas o fundo do badge).
+ * `--on-accent`: a spec não define um par de texto para superfícies
+ * pintadas com `--accent` (botão primário, item ativo do menu). Texto claro
+ * (`--text` ou branco) sobre `--accent` só alcança ~3.3–3.9:1 — abaixo do
+ * mínimo. Texto na cor de `--bg` sobre `--accent` alcança 4.81:1. Registrado
+ * no relatório da implementação como decisão técnica.
+ */
+:root {
+  --bg: #131017;
+  --surface: #1b1721;
+  --surface-raised: #231e2b;
+  --border: #2e2837;
+  --text: #ede9f1;
+  --text-muted: #9a93a6;
+  --accent: #e8368f;
+  --on-accent: var(--bg);
+  --ok: #3fb37f;
+  --ok-bg: #182423;
+  --warn: #e0a33b;
+  --warn-bg: #2c221b;
+  --danger: #e05b5b;
+  --danger-bg: #2c191f;
+}
+
+/**
+ * Entrada do modal (spec §4.4: "Movimento só para responder a uma ação —
+ * abrir modal, salvar"). Usada via `motion-safe:animate-[modal-in_150ms_
+ * ease-out]` em `components/modal.tsx` — sob `prefers-reduced-motion:
+ * reduce`, o Tailwind não aplica a classe `animate-*` (variante
+ * `motion-safe:`), então o modal aparece sem animação.
+ */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
