@@ -20,11 +20,32 @@ import {
  */
 export const productsRouter = Router();
 
+// Filtros de situação/categoria (spec estoque-interface-parte-1.md §5.3).
+// Validados via Zod como os demais: erro de validação nunca cai no 500 genérico.
+const listProductsQuerySchema = z.object({
+  status: z.enum(["ativos", "inativos", "todos"]).optional().default("ativos"),
+  categoryId: z
+    .union([z.literal("sem-categoria"), z.string().uuid()])
+    .optional(),
+});
+
 productsRouter.get("/products", requireAuth, (req, res, next) => {
   void (async () => {
+    const parsed = listProductsQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      res
+        .status(400)
+        .json({ error: parsed.error.issues[0]?.message ?? "Filtro inválido." });
+      return;
+    }
     const q = typeof req.query.q === "string" ? req.query.q.trim() || undefined : undefined;
     const lowStock = req.query.lowStock === "true";
-    const products = await listProducts(req.tenantId!, { q, lowStock });
+    const products = await listProducts(req.tenantId!, {
+      q,
+      lowStock,
+      status: parsed.data.status,
+      categoryId: parsed.data.categoryId,
+    });
     res.json({ products });
   })().catch(next);
 });
@@ -35,6 +56,9 @@ productsRouter.get("/products", requireAuth, (req, res, next) => {
 const priceSchema = z.number().nonnegative("O preço não pode ser negativo.").optional();
 const costSchema = z.number().nonnegative("O custo não pode ser negativo.").optional();
 
+// categoryId em criação (spec §5.3): opcional, uuid de uma categoria já existente.
+const categoryIdCreateSchema = z.string().uuid("Categoria inválida.").optional();
+
 const createProductSchema = z.object({
   name: z.string().trim().min(1, "Informe o nome do produto."),
   sku: z
@@ -44,6 +68,7 @@ const createProductSchema = z.object({
     .optional(),
   price: priceSchema,
   cost: costSchema,
+  categoryId: categoryIdCreateSchema,
 });
 
 productsRouter.post("/products", requireAuth, (req, res, next) => {
@@ -68,20 +93,41 @@ productsRouter.post("/products", requireAuth, (req, res, next) => {
   })().catch(next);
 });
 
-// Corpo `{ name, sku?, price?, cost? }` — spec estoque-busca-filtro-preco.md
-// §4.5: `name` obrigatório, os demais opcionais. Semântica de substituição
-// total: campo omitido OU vazio limpa o valor (mesmo efeito) — por isso, ao
-// contrário do createProductSchema, o sku vazio/só-espaços vira `undefined`
-// antes da validação, em vez de ser rejeitado com 400. Limpar de fato (null
-// no banco) é responsabilidade do service.
+// Corpo `{ name, sku?, price?, cost?, categoryId?, status? }` — spec
+// estoque-interface-parte-1.md §5.3/§5.4. `name` é o único campo obrigatório;
+// todos os demais usam a MESMA semântica de update parcial: chave AUSENTE preserva o
+// valor atual, `null` explícito limpa (vira "—"/"Sem categoria" na tela),
+// valor presente grava. sku vazio/só-espaços é tratado como `null` (limpa) —
+// é o jeito de um formulário mandar "apaguei o campo" sem precisar saber
+// mandar `null` de propósito.
+const skuUpdateSchema = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? null : value),
+  z.string().trim().min(1, "O código não pode ser vazio.").nullable().optional(),
+);
+const priceUpdateSchema = z
+  .number()
+  .nonnegative("O preço não pode ser negativo.")
+  .nullable()
+  .optional();
+const costUpdateSchema = z
+  .number()
+  .nonnegative("O custo não pode ser negativo.")
+  .nullable()
+  .optional();
+const categoryIdUpdateSchema = z
+  .string()
+  .uuid("Categoria inválida.")
+  .nullable()
+  .optional();
+const statusUpdateSchema = z.enum(["ativo", "inativo"]).optional();
+
 const updateProductSchema = z.object({
   name: z.string().trim().min(1, "Informe o nome do produto."),
-  sku: z.preprocess(
-    (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
-    z.string().trim().min(1, "O código não pode ser vazio.").optional(),
-  ),
-  price: priceSchema,
-  cost: costSchema,
+  sku: skuUpdateSchema,
+  price: priceUpdateSchema,
+  cost: costUpdateSchema,
+  categoryId: categoryIdUpdateSchema,
+  status: statusUpdateSchema,
 });
 
 productsRouter.patch("/products/:variantId", requireAuth, (req, res, next) => {

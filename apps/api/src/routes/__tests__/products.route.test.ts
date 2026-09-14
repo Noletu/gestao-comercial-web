@@ -15,7 +15,7 @@ const app = createApp();
 
 async function truncateAll(): Promise<void> {
   await adminPrisma.$executeRawUnsafe(
-    `TRUNCATE TABLE "stock_movement","inventory_level","variant","product",` +
+    `TRUNCATE TABLE "stock_movement","inventory_level","variant","product","category",` +
       `"location","membership","nuvemshop_connection","sync_state",` +
       `"two_factor","session","account","verification","tenant","user" ` +
       `RESTART IDENTITY CASCADE`,
@@ -57,9 +57,18 @@ async function setupTenantWithUser(
 async function createVariant(
   tenantId: string,
   name: string,
-  opts: { sku?: string; stock?: number; price?: number; cost?: number } = {},
+  opts: {
+    sku?: string;
+    stock?: number;
+    price?: number;
+    cost?: number;
+    categoryId?: string;
+    status?: "ACTIVE" | "ARCHIVED";
+  } = {},
 ): Promise<string> {
-  const product = await adminPrisma.product.create({ data: { tenantId, name } });
+  const product = await adminPrisma.product.create({
+    data: { tenantId, name, categoryId: opts.categoryId, status: opts.status ?? "ACTIVE" },
+  });
   const variant = await adminPrisma.variant.create({
     data: { tenantId, productId: product.id, sku: opts.sku, price: opts.price, cost: opts.cost },
   });
@@ -109,6 +118,8 @@ interface ProductListItem {
   price: number | null;
   cost: number | null;
   margin: number | null;
+  status: "ativo" | "inativo";
+  category: { id: string; name: string } | null;
 }
 
 describe("GET /api/products", () => {
@@ -312,10 +323,21 @@ describe("POST /api/products", () => {
 });
 
 /**
- * PROVA (spec estoque-busca-filtro-preco.md §4.5): edição substitui nome,
- * SKU, preço e custo por completo — campo omitido limpa o valor (vira null),
- * SKU duplicado responde 400 (não 500), e uma loja não edita variante de
- * outra loja.
+ * PROVA (spec estoque-interface-parte-1.md §5.3/§5.4 — revisão pós-achado
+ * crítico da revisão): edição usa update PARCIAL para TODO campo, inclusive
+ * sku/price/cost. Chave AUSENTE preserva o valor atual; `null` explícito
+ * limpa (vira "—"); SKU duplicado responde 400 (não 500); uma loja não edita
+ * variante de outra loja.
+ *
+ * MUDANÇA DE CONTRATO em relação à versão anterior desta rota (spec
+ * estoque-busca-filtro-preco.md §4.5, que tratava "campo ausente" como
+ * "limpar" — full-replace): esse comportamento antigo permitia que um PATCH
+ * parcial como `{ name, status: "inativo" }` (o botão Inativar da spec
+ * estoque-interface-parte-1.md §6.2) zerasse sku/price/cost com HTTP 200 —
+ * falha silenciosa em dado real. Os dois testes que documentavam a regra
+ * antiga ("omitir... limpa o valor" e "sku vazio ou omitido... limpa o
+ * valor") foram ajustados abaixo para a regra nova: omitido preserva, só
+ * `null`/vazio explícito limpa.
  */
 describe("PATCH /api/products/:variantId", () => {
   it("atualiza nome, sku, price e cost e devolve a margem recalculada", async () => {
@@ -348,20 +370,39 @@ describe("PATCH /api/products/:variantId", () => {
     );
   });
 
-  it("omitir um campo preenchido na edição limpa o valor (vira null)", async () => {
+  it("omitir price/cost na edição PRESERVA os valores atuais (não zera mais)", async () => {
     const created = await tenantA.agent
       .post("/api/products")
       .send({ name: "Com Custo Inicial Edicao", sku: "COM-CUSTO-1", price: 100, cost: 60 });
     const variantId = created.body.variantId as string;
+    // Só `name` no corpo — nem sku, nem price, nem cost. Sob a regra ANTIGA
+    // isso zerava os três; sob a regra nova (mesma do bug corrigido) preserva.
     const res = await tenantA.agent
       .patch(`/api/products/${variantId}`)
-      .send({ name: "Com Custo Inicial Edicao", sku: "COM-CUSTO-1", price: 100 });
+      .send({ name: "Com Custo Inicial Edicao Renomeada" });
     expect(res.status).toBe(200);
-    expect(res.body.cost).toBeNull();
-    expect(res.body.margin).toBeNull();
+    expect(res.body.sku).toBe("COM-CUSTO-1");
+    expect(res.body.price).toBe(100);
+    expect(res.body.cost).toBe(60);
+    expect(res.body.margin).toBe(40);
   });
 
-  it("sku vazio ou omitido na edição limpa o valor (vira null)", async () => {
+  it("enviar `null` explicitamente em price limpa só o price, preserva sku e cost", async () => {
+    const created = await tenantA.agent
+      .post("/api/products")
+      .send({ name: "Com Custo Inicial Null Explicito", sku: "COM-CUSTO-NULL-1", price: 100, cost: 60 });
+    const variantId = created.body.variantId as string;
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Com Custo Inicial Null Explicito", price: null });
+    expect(res.status).toBe(200);
+    expect(res.body.price).toBeNull();
+    expect(res.body.margin).toBeNull();
+    expect(res.body.sku).toBe("COM-CUSTO-NULL-1");
+    expect(res.body.cost).toBe(60);
+  });
+
+  it("sku vazio (explícito) limpa o valor (vira null); sku omitido PRESERVA", async () => {
     const createdEmpty = await tenantA.agent
       .post("/api/products")
       .send({ name: "Com Sku Vazio Edicao", sku: "COM-SKU-VAZIO-1" });
@@ -374,11 +415,12 @@ describe("PATCH /api/products/:variantId", () => {
     const createdOmitido = await tenantA.agent
       .post("/api/products")
       .send({ name: "Com Sku Omitido Edicao", sku: "COM-SKU-OMITIDO-1" });
+    // Sob a regra ANTIGA, omitir sku também limpava; sob a regra nova preserva.
     const resOmitido = await tenantA.agent
       .patch(`/api/products/${createdOmitido.body.variantId}`)
       .send({ name: "Com Sku Omitido Edicao" });
     expect(resOmitido.status).toBe(200);
-    expect(resOmitido.body.sku).toBeNull();
+    expect(resOmitido.body.sku).toBe("COM-SKU-OMITIDO-1");
   });
 
   it("nome vazio na edição responde 400, não 500", async () => {
@@ -454,5 +496,294 @@ describe("POST /api/products/:variantId/movements", () => {
       .send({ kind: "entrada", quantity: 1 });
     expect(res.status).toBe(400);
     expect(res.body.error).toBe("Produto não encontrado.");
+  });
+});
+
+/**
+ * PROVA (spec estoque-interface-parte-1.md §5.4 item 3): produto inativo some
+ * da listagem por padrão, aparece com `status=todos`, e `status=inativos`
+ * mostra só ele.
+ */
+describe("GET /api/products - filtro de situação (spec estoque-interface-parte-1.md §5.2/§5.3)", () => {
+  it("sem filtro (padrão) não traz produto inativo", async () => {
+    const activeId = await createVariant(tenantA.tenantId, "Peça Ativa Situacao Padrao");
+    const archivedId = await createVariant(tenantA.tenantId, "Peça Inativa Situacao Padrao", {
+      status: "ARCHIVED",
+    });
+    const res = await tenantA.agent.get("/api/products");
+    const ids = (res.body.products as ProductListItem[]).map((p) => p.variantId);
+    expect(ids).toContain(activeId);
+    expect(ids).not.toContain(archivedId);
+  });
+
+  it("status=todos traz ativos e inativos", async () => {
+    const activeId = await createVariant(tenantA.tenantId, "Peça Ativa Situacao Todos");
+    const archivedId = await createVariant(tenantA.tenantId, "Peça Inativa Situacao Todos", {
+      status: "ARCHIVED",
+    });
+    const res = await tenantA.agent.get("/api/products").query({ status: "todos" });
+    const ids = (res.body.products as ProductListItem[]).map((p) => p.variantId);
+    expect(ids).toContain(activeId);
+    expect(ids).toContain(archivedId);
+  });
+
+  it("status=inativos só traz produto inativo", async () => {
+    const activeId = await createVariant(tenantA.tenantId, "Peça Ativa Situacao Inativos");
+    const archivedId = await createVariant(tenantA.tenantId, "Peça Inativa Situacao Inativos", {
+      status: "ARCHIVED",
+    });
+    const res = await tenantA.agent.get("/api/products").query({ status: "inativos" });
+    const ids = (res.body.products as ProductListItem[]).map((p) => p.variantId);
+    expect(ids).toContain(archivedId);
+    expect(ids).not.toContain(activeId);
+  });
+
+  it("status inválido responde 400, não 500", async () => {
+    const res = await tenantA.agent.get("/api/products").query({ status: "banana" });
+    expect(res.status).toBe(400);
+  });
+});
+
+/**
+ * PROVA (spec §5.4 item 4): inativar e reativar mudam só `status` — estoque e
+ * o ledger de movimentações continuam intactos.
+ */
+describe("PATCH /api/products/:variantId - inativar e reativar (spec §5.2)", () => {
+  it("inativar muda status para inativo sem alterar estoque nem apagar movimentação", async () => {
+    const variantId = await createVariant(tenantA.tenantId, "Peça Para Inativar", { stock: 7 });
+    const movementsBefore = await adminPrisma.stockMovement.count({ where: { variantId } });
+
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Peça Para Inativar", status: "inativo" });
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("inativo");
+    expect(res.body.stock).toBe(7);
+
+    const movementsAfter = await adminPrisma.stockMovement.count({ where: { variantId } });
+    expect(movementsAfter).toBe(movementsBefore);
+    const level = await adminPrisma.inventoryLevel.findFirst({ where: { variantId } });
+    expect(level?.stock).toBe(7);
+  });
+
+  it("reativar volta o status para ativo, sem alterar estoque", async () => {
+    const variantId = await createVariant(tenantA.tenantId, "Peça Para Reativar", {
+      stock: 3,
+      status: "ARCHIVED",
+    });
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Peça Para Reativar", status: "ativo" });
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("ativo");
+    expect(res.body.stock).toBe(3);
+  });
+
+  it("editar sem enviar status não altera a situação atual", async () => {
+    const variantId = await createVariant(tenantA.tenantId, "Peça Situacao Preservada", {
+      status: "ARCHIVED",
+    });
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Peça Situacao Preservada Editada" });
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("inativo");
+  });
+
+  /**
+   * REGRESSÃO (achado crítico de revisão): `PATCH { name, status }` — o
+   * payload exato que o botão Inativar manda (spec §6.2) — rodava
+   * `variant.update` incondicional em cima de sku/price/cost, zerando os três
+   * com HTTP 200. Peça criada COM sku/price/cost reais, para o "antes" e o
+   * "depois" serem distinguíveis (o bug não aparecia nos testes acima porque
+   * as variantes eram criadas sem esses campos — null antes, null depois).
+   */
+  it("inativar preserva sku, price e cost intactos (regressão do achado crítico de revisão)", async () => {
+    const variantId = await createVariant(tenantA.tenantId, "Peça Com Precos Para Inativar", {
+      sku: "SKU-PRESERVA-INATIVAR",
+      price: 150,
+      cost: 90,
+    });
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Peça Com Precos Para Inativar", status: "inativo" });
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("inativo");
+    expect(res.body.sku).toBe("SKU-PRESERVA-INATIVAR");
+    expect(res.body.price).toBe(150);
+    expect(res.body.cost).toBe(90);
+  });
+});
+
+/**
+ * PROVA (spec §5.4 item 5): filtro por categoria e "sem-categoria" na
+ * listagem, e o item da lista carrega `category: {id, name} | null`.
+ */
+describe("GET /api/products - filtro por categoria (spec §5.3)", () => {
+  it("filtra só as peças daquela categoria", async () => {
+    const categoryRes = await tenantA.agent
+      .post("/api/categories")
+      .send({ name: "Calça Filtro Produtos" });
+    const categoryId = categoryRes.body.id as string;
+    const withCategory = await createVariant(tenantA.tenantId, "Calça Com Categoria", {
+      categoryId,
+    });
+    const withoutCategory = await createVariant(tenantA.tenantId, "Peça Sem Categoria Filtro");
+
+    const res = await tenantA.agent.get("/api/products").query({ categoryId });
+    const ids = (res.body.products as ProductListItem[]).map((p) => p.variantId);
+    expect(ids).toContain(withCategory);
+    expect(ids).not.toContain(withoutCategory);
+  });
+
+  it("sem-categoria retorna só as peças sem vínculo", async () => {
+    const categoryRes = await tenantA.agent
+      .post("/api/categories")
+      .send({ name: "Camisa Filtro Sem Categoria" });
+    const categoryId = categoryRes.body.id as string;
+    const withCategory = await createVariant(tenantA.tenantId, "Camisa Com Categoria Sc", {
+      categoryId,
+    });
+    const withoutCategory = await createVariant(tenantA.tenantId, "Peça Sem Categoria Sc");
+
+    const res = await tenantA.agent.get("/api/products").query({ categoryId: "sem-categoria" });
+    const ids = (res.body.products as ProductListItem[]).map((p) => p.variantId);
+    expect(ids).toContain(withoutCategory);
+    expect(ids).not.toContain(withCategory);
+  });
+
+  it("item da lista traz a categoria vinculada ({id, name}) ou null", async () => {
+    const categoryRes = await tenantA.agent
+      .post("/api/categories")
+      .send({ name: "Bolsas Item Lista" });
+    const categoryId = categoryRes.body.id as string;
+    const variantId = await createVariant(tenantA.tenantId, "Bolsa Com Categoria Item", {
+      categoryId,
+    });
+    const res = await tenantA.agent.get("/api/products");
+    const item = (res.body.products as ProductListItem[]).find((p) => p.variantId === variantId);
+    expect(item?.category).toMatchObject({ id: categoryId, name: "Bolsas Item Lista" });
+
+    const semCategoriaId = await createVariant(tenantA.tenantId, "Peça Sem Categoria Item Lista");
+    const resSemCategoria = await tenantA.agent.get("/api/products");
+    const itemSemCategoria = (resSemCategoria.body.products as ProductListItem[]).find(
+      (p) => p.variantId === semCategoriaId,
+    );
+    expect(itemSemCategoria?.category).toBeNull();
+  });
+
+  it("categoryId inválido (não é uuid nem 'sem-categoria') responde 400, não 500", async () => {
+    const res = await tenantA.agent.get("/api/products").query({ categoryId: "not-a-uuid" });
+    expect(res.status).toBe(400);
+  });
+
+  it("editar o produto sem enviar categoryId não altera a categoria atual", async () => {
+    const categoryRes = await tenantA.agent
+      .post("/api/categories")
+      .send({ name: "Sapatos Preserva Categoria" });
+    const categoryId = categoryRes.body.id as string;
+    const variantId = await createVariant(tenantA.tenantId, "Sapato Preserva Categoria", {
+      categoryId,
+    });
+
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Sapato Preserva Categoria Editado" });
+    expect(res.status).toBe(200);
+    expect(res.body.category).toMatchObject({ id: categoryId, name: "Sapatos Preserva Categoria" });
+  });
+
+  it("editar o produto com categoryId explícito null limpa a categoria (vira 'Sem categoria')", async () => {
+    const categoryRes = await tenantA.agent
+      .post("/api/categories")
+      .send({ name: "Acessorios Limpa Categoria" });
+    const categoryId = categoryRes.body.id as string;
+    const variantId = await createVariant(tenantA.tenantId, "Acessorio Limpa Categoria", {
+      categoryId,
+    });
+
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Acessorio Limpa Categoria", categoryId: null });
+    expect(res.status).toBe(200);
+    expect(res.body.category).toBeNull();
+  });
+
+  /**
+   * REGRESSÃO (achado crítico de revisão): `PATCH { name, categoryId }` — o
+   * payload que a troca de categoria manda — também rodava `variant.update`
+   * incondicional em cima de sku/price/cost. Peça criada COM sku/price/cost
+   * reais para o "antes" e "depois" serem distinguíveis.
+   */
+  it("trocar categoria preserva sku, price e cost intactos (regressão do achado crítico de revisão)", async () => {
+    const categoryRes = await tenantA.agent
+      .post("/api/categories")
+      .send({ name: "Camisas Preserva Precos" });
+    const categoryId = categoryRes.body.id as string;
+    const variantId = await createVariant(tenantA.tenantId, "Camisa Com Precos Trocar Categoria", {
+      sku: "SKU-PRESERVA-CATEGORIA",
+      price: 200,
+      cost: 120,
+    });
+
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({ name: "Camisa Com Precos Trocar Categoria", categoryId });
+    expect(res.status).toBe(200);
+    expect(res.body.category).toMatchObject({ id: categoryId });
+    expect(res.body.sku).toBe("SKU-PRESERVA-CATEGORIA");
+    expect(res.body.price).toBe(200);
+    expect(res.body.cost).toBe(120);
+  });
+
+  it("editar sku/price/cost sem enviar categoryId preserva a categoria atual", async () => {
+    const categoryRes = await tenantA.agent
+      .post("/api/categories")
+      .send({ name: "Calcados Preserva Categoria Edicao Precos" });
+    const categoryId = categoryRes.body.id as string;
+    const variantId = await createVariant(tenantA.tenantId, "Sapato Preserva Categoria Edicao Precos", {
+      categoryId,
+    });
+
+    const res = await tenantA.agent
+      .patch(`/api/products/${variantId}`)
+      .send({
+        name: "Sapato Preserva Categoria Edicao Precos",
+        sku: "SKU-PRESERVA-CAT-EDIT",
+        price: 80,
+        cost: 30,
+      });
+    expect(res.status).toBe(200);
+    expect(res.body.category).toMatchObject({ id: categoryId });
+  });
+});
+
+/**
+ * PROVA (spec §5.4 item 6): o alerta de estoque baixo e a contagem de peças
+ * (tamanho da listagem padrão) ignoram produto inativo.
+ */
+describe("GET /api/products - estoque baixo e contagem ignoram produto inativo (spec §5.2)", () => {
+  it("lowStock=true não traz peça inativa com estoque baixo", async () => {
+    const activeLowId = await createVariant(tenantA.tenantId, "Peça Ativa Baixa Ignorar Inativo", {
+      stock: 1,
+    });
+    const archivedLowId = await createVariant(
+      tenantA.tenantId,
+      "Peça Inativa Baixa Ignorar Inativo",
+      { stock: 1, status: "ARCHIVED" },
+    );
+    const res = await tenantA.agent.get("/api/products").query({ lowStock: "true" });
+    const ids = (res.body.products as ProductListItem[]).map((p) => p.variantId);
+    expect(ids).toContain(activeLowId);
+    expect(ids).not.toContain(archivedLowId);
+  });
+
+  it("a contagem de peças da listagem padrão ignora produto inativo recém-inativado", async () => {
+    const before = await tenantA.agent.get("/api/products");
+    const countBefore = (before.body.products as ProductListItem[]).length;
+    await createVariant(tenantA.tenantId, "Peça Inativa Nao Conta", { status: "ARCHIVED" });
+    const after = await tenantA.agent.get("/api/products");
+    const countAfter = (after.body.products as ProductListItem[]).length;
+    expect(countAfter).toBe(countBefore);
   });
 });

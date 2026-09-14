@@ -1,513 +1,64 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useState, type FormEvent } from "react";
-import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-
-interface Me {
-  user: { id: string; email: string; name: string } | null;
-  tenantId: string;
-  role: string;
-}
-
-interface ProductItem {
-  variantId: string;
-  productId: string;
-  name: string;
-  sku: string | null;
-  stock: number;
-  price: number | null;
-  cost: number | null;
-  margin: number | null;
-}
-
-type MovementKind = "entrada" | "saida" | "ajuste";
-
-interface MovementResult {
-  stock: number;
-  message: string;
-}
+import { AppShell } from "@/components/app-shell";
+import { FiltersBar } from "@/components/filters-bar";
+import { ProductTable, type ProductLoadState } from "@/components/product-table";
+import { HIGHLIGHT_MS } from "@/components/product-row";
+import { WarningIcon, CloseIcon } from "@/components/icons";
+import { LOW_STOCK_THRESHOLD } from "@/lib/format";
+import {
+  API,
+  extractErrorMessage,
+  type CategoryItem,
+  type Me,
+  type ProductItem,
+  type ProductStatusFilter,
+} from "@/lib/api";
 
 /**
- * Limite de estoque baixo, fixo pra loja toda (spec
- * estoque-busca-filtro-preco.md §4.2 — mesmo valor do backend,
- * `LOW_STOCK_THRESHOLD` em `products.service.ts`; não há pacote compartilhado
- * entre web/api pra essa constante, então mantemos os dois em sincronia).
+ * Tela de estoque (spec estoque-interface-parte-1.md §6). Decisão técnica:
+ * a lista completa (`status=todos`) é buscada UMA VEZ no carregamento, e
+ * busca/filtro de situação/categoria/estoque baixo são aplicados no
+ * cliente, em memória — o dataset é pequeno (~100-200 peças, mesmo
+ * comentário em `products.service.ts`), e assim a contagem do cabeçalho e o
+ * alerta de estoque baixo sempre refletem a realidade da loja inteira,
+ * independentemente do filtro que o usuário aplicou no momento (spec §6.2:
+ * o banner é clicável e a contagem não pode variar por causa de um filtro
+ * já ativo). Mutações (criar/editar/movimentar/inativar/reativar) atualizam
+ * o item correspondente na lista local a partir da resposta da API, sem
+ * recarregar a lista inteira.
  */
-const LOW_STOCK_THRESHOLD = 2;
 
-type StockStatus = "zerado" | "baixo" | "ok";
-
-function stockStatus(stock: number): StockStatus {
-  if (stock === 0) return "zerado";
-  if (stock <= LOW_STOCK_THRESHOLD) return "baixo";
-  return "ok";
+interface Feedback {
+  tone: "ok" | "danger";
+  text: string;
 }
 
-const STOCK_STATUS_STYLES: Record<StockStatus, string> = {
-  zerado: "bg-red-100 text-red-800",
-  baixo: "bg-amber-100 text-amber-800",
-  ok: "bg-green-100 text-green-800",
-};
-
-const STOCK_STATUS_LABELS: Record<StockStatus, string> = {
-  zerado: "Zerado",
-  baixo: "Baixo",
-  ok: "Ok",
-};
-
-function StockBadge({ stock }: { stock: number }): JSX.Element {
-  const status = stockStatus(stock);
-  return (
-    <span
-      className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${STOCK_STATUS_STYLES[status]}`}
-    >
-      {stock} · {STOCK_STATUS_LABELS[status]}
-    </span>
-  );
-}
-
-/** `null` (valor não cadastrado) sempre vira "—" — nunca "R$ NaN" (spec §4.3/§6). */
-function formatCurrency(value: number | null): string {
-  if (value === null) return "—";
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-/** `null` (margem indeterminada) sempre vira "—" — nunca "0%" fingindo que é zero de verdade. */
-function formatPercent(value: number | null): string {
-  if (value === null) return "—";
-  return `${value.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
-}
-
-/**
- * Campo numérico opcional (preço/custo) do formulário: vazio vira `undefined`
- * (o campo é omitido no corpo enviado — omitido/vazio limpa o valor, spec
- * §4.5). Texto que não é um número válido ≥ 0 retorna erro explícito — nunca
- * deixa um NaN ou negativo seguir silenciosamente para a API.
- */
-function parseOptionalNonNegativeNumber(
-  raw: string,
-): { ok: true; value: number | undefined } | { ok: false; error: string } {
-  const trimmed = raw.trim();
-  if (trimmed === "") return { ok: true, value: undefined };
-  const parsed = Number(trimmed);
-  if (!Number.isFinite(parsed) || parsed < 0) {
-    return {
-      ok: false,
-      error: "Informe um valor numérico válido, maior ou igual a zero.",
-    };
-  }
-  return { ok: true, value: parsed };
-}
-
-/**
- * Tenta extrair uma mensagem de erro amigável do corpo da resposta — a API
- * responde `{ error }` nos 400 de validação e `{ status, message }` no 500
- * genérico. Nunca deixa a tela sem mensagem: cai num texto padrão se o corpo
- * não vier no formato esperado (falha silenciosa é proibida).
- */
-async function extractErrorMessage(
-  res: Response,
-  fallback: string,
-): Promise<string> {
-  try {
-    const body: unknown = await res.json();
-    if (body && typeof body === "object") {
-      const record = body as Record<string, unknown>;
-      if (typeof record.error === "string") return record.error;
-      if (typeof record.message === "string") return record.message;
-    }
-  } catch {
-    // Corpo não é JSON válido — usa o fallback abaixo.
-  }
-  return fallback;
-}
-
-/**
- * Formulário de cadastro de produto (nome + SKU opcional — spec §5.4/§8 da
- * gestão manual, preço e custo opcionais adicionados pela spec
- * estoque-busca-filtro-preco.md §4.4/§6).
- */
-function NewProductForm({
-  onCreated,
-}: {
-  onCreated: (item: ProductItem) => void;
-}): JSX.Element {
-  const [name, setName] = useState("");
-  const [sku, setSku] = useState("");
-  const [price, setPrice] = useState("");
-  const [cost, setCost] = useState("");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  async function onSubmit(e: FormEvent): Promise<void> {
-    e.preventDefault();
-    setError("");
-
-    const parsedPrice = parseOptionalNonNegativeNumber(price);
-    if (!parsedPrice.ok) {
-      setError(parsedPrice.error);
-      return;
-    }
-    const parsedCost = parseOptionalNonNegativeNumber(cost);
-    if (!parsedCost.ok) {
-      setError(parsedCost.error);
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const res = await fetch(`${API}/api/products`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          sku: sku.trim() || undefined,
-          price: parsedPrice.value,
-          cost: parsedCost.value,
-        }),
-      });
-      if (!res.ok) {
-        setError(
-          await extractErrorMessage(res, "Não foi possível cadastrar o produto."),
-        );
-        return;
-      }
-      const item = (await res.json()) as ProductItem;
-      onCreated(item);
-    } catch {
-      setError("Não foi possível conectar ao servidor. Tente novamente.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <form
-      onSubmit={onSubmit}
-      className="flex flex-col gap-3 rounded border border-gray-200 p-3"
-    >
-      <label className="flex flex-col gap-1 text-sm">
-        Nome
-        <input
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="rounded border border-gray-300 p-2"
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Código (SKU, opcional)
-        <input
-          value={sku}
-          onChange={(e) => setSku(e.target.value)}
-          className="rounded border border-gray-300 p-2"
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Preço de venda (opcional)
-        <input
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          min="0"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="rounded border border-gray-300 p-2"
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Custo (opcional)
-        <input
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          min="0"
-          value={cost}
-          onChange={(e) => setCost(e.target.value)}
-          className="rounded border border-gray-300 p-2"
-        />
-      </label>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded bg-gray-900 p-2 text-sm font-medium text-white disabled:opacity-50"
-      >
-        {submitting ? "Cadastrando..." : "Cadastrar"}
-      </button>
-    </form>
-  );
-}
-
-/**
- * Formulário de edição (rota nova `PATCH /api/products/:variantId` — spec
- * estoque-busca-filtro-preco.md §4.5/§6). Substituição total: campo deixado
- * em branco limpa o valor no backend (nunca "mantém o que já tinha").
- */
-function EditProductForm({
-  item,
-  onSaved,
-}: {
-  item: ProductItem;
-  onSaved: (item: ProductItem) => void;
-}): JSX.Element {
-  const [name, setName] = useState(item.name);
-  const [sku, setSku] = useState(item.sku ?? "");
-  const [price, setPrice] = useState(item.price !== null ? String(item.price) : "");
-  const [cost, setCost] = useState(item.cost !== null ? String(item.cost) : "");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  async function onSubmit(e: FormEvent): Promise<void> {
-    e.preventDefault();
-    setError("");
-
-    const parsedPrice = parseOptionalNonNegativeNumber(price);
-    if (!parsedPrice.ok) {
-      setError(parsedPrice.error);
-      return;
-    }
-    const parsedCost = parseOptionalNonNegativeNumber(cost);
-    if (!parsedCost.ok) {
-      setError(parsedCost.error);
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const res = await fetch(`${API}/api/products/${item.variantId}`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          sku: sku.trim() || undefined,
-          price: parsedPrice.value,
-          cost: parsedCost.value,
-        }),
-      });
-      if (!res.ok) {
-        setError(
-          await extractErrorMessage(res, "Não foi possível salvar as alterações."),
-        );
-        return;
-      }
-      const updated = (await res.json()) as ProductItem;
-      onSaved(updated);
-    } catch {
-      setError("Não foi possível conectar ao servidor. Tente novamente.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <form
-      onSubmit={onSubmit}
-      className="flex flex-col gap-3 border-t border-gray-200 pt-3"
-    >
-      <label className="flex flex-col gap-1 text-sm">
-        Nome
-        <input
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="rounded border border-gray-300 p-2"
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Código (SKU)
-        <input
-          value={sku}
-          onChange={(e) => setSku(e.target.value)}
-          className="rounded border border-gray-300 p-2"
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Preço de venda
-        <input
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          min="0"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="rounded border border-gray-300 p-2"
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Custo
-        <input
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          min="0"
-          value={cost}
-          onChange={(e) => setCost(e.target.value)}
-          className="rounded border border-gray-300 p-2"
-        />
-      </label>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded bg-gray-900 p-2 text-sm font-medium text-white disabled:opacity-50"
-      >
-        {submitting ? "Salvando..." : "Salvar alterações"}
-      </button>
-    </form>
-  );
-}
-
-/** Formulário de lançamento (Entrada/Saída/Ajuste — spec §5.1/§8). */
-function MovementForm({
-  variantId,
-  onSuccess,
-}: {
-  variantId: string;
-  onSuccess: (result: MovementResult) => void;
-}): JSX.Element {
-  const [kind, setKind] = useState<MovementKind>("entrada");
-  const [quantity, setQuantity] = useState("");
-  const [note, setNote] = useState("");
-  const [error, setError] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  async function onSubmit(e: FormEvent): Promise<void> {
-    e.preventDefault();
-    setError("");
-    setFeedback("");
-
-    const parsedQuantity = Number(quantity);
-    if (quantity.trim() === "" || !Number.isInteger(parsedQuantity)) {
-      setError("Informe uma quantidade válida.");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const res = await fetch(`${API}/api/products/${variantId}/movements`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kind,
-          quantity: parsedQuantity,
-          note: note.trim() || undefined,
-        }),
-      });
-      if (!res.ok) {
-        setError(
-          await extractErrorMessage(
-            res,
-            "Não foi possível registrar a movimentação.",
-          ),
-        );
-        return;
-      }
-      const result = (await res.json()) as MovementResult;
-      setFeedback(result.message);
-      setQuantity("");
-      setNote("");
-      onSuccess(result);
-    } catch {
-      setError("Não foi possível conectar ao servidor. Tente novamente.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <form
-      onSubmit={onSubmit}
-      className="mt-3 flex flex-col gap-3 border-t border-gray-200 pt-3"
-    >
-      <label className="flex flex-col gap-1 text-sm">
-        Tipo
-        <select
-          value={kind}
-          onChange={(e) => setKind(e.target.value as MovementKind)}
-          className="rounded border border-gray-300 p-2"
-        >
-          <option value="entrada">Entrada</option>
-          <option value="saida">Saída</option>
-          <option value="ajuste">Ajuste</option>
-        </select>
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        {kind === "ajuste" ? "Quantidade contada" : "Quantidade"}
-        <input
-          type="number"
-          inputMode="numeric"
-          required
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
-          className="rounded border border-gray-300 p-2"
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Observação (opcional)
-        <input
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          className="rounded border border-gray-300 p-2"
-        />
-      </label>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {feedback && <p className="text-sm text-green-700">{feedback}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded bg-gray-900 p-2 text-sm font-medium text-white disabled:opacity-50"
-      >
-        {submitting ? "Salvando..." : "Salvar"}
-      </button>
-    </form>
-  );
-}
-
-export default function DashboardPage() {
+export default function DashboardPage(): JSX.Element {
   const router = useRouter();
   const [me, setMe] = useState<Me | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [products, setProducts] = useState<ProductItem[] | null>(null);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [listError, setListError] = useState("");
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
+
   const [query, setQuery] = useState("");
+  const [status, setStatus] = useState<ProductStatusFilter>("ativos");
+  const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
   const [lowStockOnly, setLowStockOnly] = useState(false);
-
-  const [showNewProduct, setShowNewProduct] = useState(false);
-  const [openMovementFor, setOpenMovementFor] = useState<string | null>(null);
-  const [openEditFor, setOpenEditFor] = useState<string | null>(null);
-
-  const loadProducts = useCallback(async (q: string, onlyLowStock: boolean) => {
-    try {
-      const params = new URLSearchParams();
-      if (q.trim()) params.set("q", q.trim());
-      if (onlyLowStock) params.set("lowStock", "true");
-      const qs = params.toString() ? `?${params.toString()}` : "";
-      const res = await fetch(`${API}/api/products${qs}`, {
-        credentials: "include",
-      });
-      if (!res.ok) {
-        setListError(
-          await extractErrorMessage(res, "Não foi possível carregar os produtos."),
-        );
-        return;
-      }
-      const data = (await res.json()) as { products: ProductItem[] };
-      setProducts(data.products);
-      setListError("");
-    } catch {
-      setListError("Não foi possível conectar ao servidor. Tente novamente.");
-    }
-  }, []);
+  /**
+   * Avança a cada "Limpar filtros". A barra de busca guarda o texto digitado
+   * localmente; este contador é o comando "limpe" chegando até ela mesmo
+   * quando a busca já estava vazia e `query` não muda.
+   */
+  const [filtersResetSignal, setFiltersResetSignal] = useState(0);
+  /** Peça recém-cadastrada, destacada na lista por `HIGHLIGHT_MS`. */
+  const [highlightedVariantId, setHighlightedVariantId] = useState<string | null>(null);
 
   useEffect(() => {
     // O gate REAL é aqui: pedimos /api/me ao backend. Se a sessão não vale, o
@@ -518,32 +69,171 @@ export default function DashboardPage() {
           router.push("/login");
           return null;
         }
+        // 409 do `requireAuth` significa "loja ativa não definida". A
+        // mensagem do backend ("Selecione a loja ativa") pede uma ação que
+        // esta tela não oferece; aqui ela vira o que o usuário pode fazer de
+        // fato.
+        if (r.status === 409) {
+          setListError(
+            "Não conseguimos abrir a sua loja. Recarregue a página; se continuar assim, saia e entre de novo.",
+          );
+          return null;
+        }
+        // Qualquer outra resposta fora do 200 (ex.: 403, "sem acesso a nenhuma
+        // loja") vira mensagem na tela: o corpo é `{ error }`, não um usuário.
+        if (!r.ok) {
+          setListError(
+            await extractErrorMessage(r, "Não foi possível confirmar seu acesso. Recarregue a página."),
+          );
+          return null;
+        }
         return (await r.json()) as Me;
       })
       .then((data) => {
         if (data) setMe(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        // Servidor fora do ar: `me` nulo trava a carga da lista, então a tela
+        // precisa dizer por que não há nada nela.
+        setListError("Não foi possível conectar ao servidor. Recarregue a página.");
+        setLoading(false);
+      });
   }, [router]);
 
   useEffect(() => {
-    if (!loading && me) void loadProducts(query, lowStockOnly);
-    // Só na entrada (depois do gate de sessão resolver) — busca manual usa
-    // onSearchSubmit, e o toggle de estoque baixo usa onToggleLowStock, não
-    // este efeito, para não recarregar a cada tecla.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, me]);
+    if (loading || !me) return;
+    let cancelled = false;
 
-  async function onSearchSubmit(e: FormEvent): Promise<void> {
-    e.preventDefault();
-    await loadProducts(query, lowStockOnly);
+    async function loadAll(): Promise<void> {
+      try {
+        const [productsRes, categoriesRes] = await Promise.all([
+          fetch(`${API}/api/products?status=todos`, { credentials: "include" }),
+          fetch(`${API}/api/categories`, { credentials: "include" }),
+        ]);
+        if (cancelled) return;
+        // Sessão expirada entre o /api/me e esta carga: o caminho para voltar
+        // é a tela de login, não uma mensagem de erro na tela de estoque.
+        if (productsRes.status === 401 || categoriesRes.status === 401) {
+          router.push("/login");
+          return;
+        }
+        if (!productsRes.ok) {
+          setListError(
+            await extractErrorMessage(productsRes, "Não foi possível carregar os produtos."),
+          );
+          return;
+        }
+        if (!categoriesRes.ok) {
+          setListError(
+            await extractErrorMessage(categoriesRes, "Não foi possível carregar as categorias."),
+          );
+          return;
+        }
+        const productsData = (await productsRes.json()) as { products: ProductItem[] };
+        const categoriesData = (await categoriesRes.json()) as { categories: CategoryItem[] };
+        if (cancelled) return;
+        setProducts(productsData.products);
+        setCategories(categoriesData.categories);
+        setListError("");
+      } catch {
+        if (!cancelled) {
+          setListError("Não foi possível conectar ao servidor. Tente novamente.");
+        }
+      }
+    }
+
+    void loadAll();
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, me, router]);
+
+  const activeItems = useMemo(
+    () => (products ?? []).filter((item) => item.status === "ativo"),
+    [products],
+  );
+  const totalPecas = activeItems.length;
+  const totalUnidades = activeItems.reduce((sum, item) => sum + item.stock, 0);
+  const lowStockCount = activeItems.filter((item) => item.stock <= LOW_STOCK_THRESHOLD).length;
+
+  const filteredItems = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return (products ?? []).filter((item) => {
+      if (status !== "todos") {
+        const wantsActive = status === "ativos";
+        if (wantsActive !== (item.status === "ativo")) return false;
+      }
+      if (categoryId === "sem-categoria" && item.category !== null) return false;
+      if (categoryId && categoryId !== "sem-categoria" && item.category?.id !== categoryId) {
+        return false;
+      }
+      if (lowStockOnly && item.stock > LOW_STOCK_THRESHOLD) return false;
+      if (q) {
+        const matchesName = item.name.toLowerCase().includes(q);
+        const matchesSku = (item.sku ?? "").toLowerCase().includes(q);
+        if (!matchesName && !matchesSku) return false;
+      }
+      return true;
+    });
+  }, [products, query, status, categoryId, lowStockOnly]);
+
+  /**
+   * A contagem de peças por categoria é derivada da lista que já está em
+   * memória, não do `productCount` que veio do `GET /api/categories`: a
+   * lista é carregada inteira (`status=todos`, ver comentário no topo) e
+   * toda mudança de vínculo passa por ela, então a contagem acompanha o que
+   * o usuário acabou de fazer sem uma segunda ida ao servidor — e nunca
+   * contradiz a tabela ao lado. Mesma semântica do backend, que conta peças
+   * de qualquer situação.
+   */
+  const categoriesWithCount = useMemo(
+    () =>
+      products === null
+        ? categories
+        : categories.map((category) => ({
+            ...category,
+            productCount: products.filter((item) => item.category?.id === category.id).length,
+          })),
+    [categories, products],
+  );
+
+  function upsertProduct(updated: ProductItem): void {
+    setProducts((prev) =>
+      prev ? prev.map((p) => (p.variantId === updated.variantId ? updated : p)) : prev,
+    );
   }
 
-  async function onToggleLowStock(checked: boolean): Promise<void> {
-    setLowStockOnly(checked);
-    await loadProducts(query, checked);
+  /**
+   * O nome da categoria também vive denormalizado em cada peça
+   * (`item.category.name`), e renomear precisa alcançar as duas cópias para a
+   * tabela não exibir o nome velho.
+   */
+  function renameCategoryInProducts(updated: CategoryItem): void {
+    setProducts((prev) =>
+      prev
+        ? prev.map((item) =>
+            item.category?.id === updated.id
+              ? { ...item, category: { id: updated.id, name: updated.name } }
+              : item,
+          )
+        : prev,
+    );
   }
+
+  function clearFilters(): void {
+    setFiltersResetSignal((signal) => signal + 1);
+    setQuery("");
+    setStatus("ativos");
+    setCategoryId(undefined);
+    setLowStockOnly(false);
+  }
+
+  useEffect(() => {
+    if (highlightedVariantId === null) return;
+    const timer = setTimeout(() => setHighlightedVariantId(null), HIGHLIGHT_MS);
+    return () => clearTimeout(timer);
+  }, [highlightedVariantId]);
 
   async function onLogout(): Promise<void> {
     await authClient.signOut();
@@ -552,195 +242,125 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center p-6">
-        <p className="text-gray-500">Carregando...</p>
+      <main className="flex min-h-screen items-center justify-center bg-bg p-6 text-text">
+        <p className="text-text-muted">Carregando...</p>
       </main>
     );
   }
 
-  const lowStockCount =
-    products?.filter((item) => item.stock <= LOW_STOCK_THRESHOLD).length ?? 0;
+  const hasActiveFilters = status !== "ativos" || categoryId !== undefined || lowStockOnly;
+
+  // Enquanto a lista não chegou, a tela não afirma nada sobre o estoque —
+  // nem a contagem do cabeçalho, nem "nenhuma peça cadastrada".
+  const loadState: ProductLoadState =
+    products !== null ? "ready" : listError !== "" ? "failed" : "loading";
+
+  const subtitle =
+    loadState === "ready"
+      ? `${totalPecas} ${totalPecas === 1 ? "peça" : "peças"} · ${totalUnidades} ${
+          totalUnidades === 1 ? "unidade" : "unidades"
+        }`
+      : loadState === "loading"
+        ? "Carregando estoque..."
+        : "Estoque não carregado";
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 p-6">
-      <h1 className="text-2xl font-bold">Painel</h1>
-      {me?.user && (
-        <div className="rounded border border-gray-200 p-4 text-sm">
-          <p>
-            <strong>Usuário:</strong> {me.user.name} ({me.user.email})
-          </p>
-          <p>
-            <strong>Loja ativa:</strong> {me.tenantId}
-          </p>
-          <p>
-            <strong>Papel:</strong> {me.role}
-          </p>
-        </div>
-      )}
-      <Link href="/two-factor" className="text-sm text-gray-700 underline">
-        Ativar verificação em duas etapas (2FA)
-      </Link>
-      <button
-        onClick={onLogout}
-        className="rounded border border-gray-300 p-2 text-sm font-medium"
-      >
-        Sair
-      </button>
+    <AppShell
+      userName={me?.user?.name ?? ""}
+      onLogout={() => void onLogout()}
+      title="Estoque"
+      subtitle={subtitle}
+    >
+      <FiltersBar
+        query={query}
+        onQueryChange={setQuery}
+        status={status}
+        onStatusChange={setStatus}
+        categoryId={categoryId}
+        onCategoryChange={setCategoryId}
+        lowStockOnly={lowStockOnly}
+        onToggleLowStock={setLowStockOnly}
+        categories={categoriesWithCount}
+        onCategoriesChange={setCategories}
+        onCategoryRenamed={renameCategoryInProducts}
+        loadState={loadState}
+        resetSignal={filtersResetSignal}
+        onProductCreated={(item) => {
+          // Lista nula significa "não carregou": nenhuma mutação pode criá-la,
+          // sob pena de a tela afirmar um estoque de uma peça só. Ordenada por
+          // nome, como o backend a devolve.
+          setProducts((prev) =>
+            prev
+              ? [...prev, item].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+              : prev,
+          );
+          setHighlightedVariantId(item.variantId);
+          setFeedback({ tone: "ok", text: `"${item.name}" foi cadastrada.` });
+        }}
+      />
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold">Estoque</h2>
-
-        <form onSubmit={onSearchSubmit} className="flex flex-wrap items-center gap-2">
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar por nome ou código"
-            className="flex-1 rounded border border-gray-300 p-2"
-          />
-          <button
-            type="submit"
-            className="rounded border border-gray-300 p-2 text-sm font-medium"
-          >
-            Buscar
-          </button>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={lowStockOnly}
-              onChange={(e) => void onToggleLowStock(e.target.checked)}
-            />
-            Só estoque baixo
-          </label>
-        </form>
-
-        {lowStockCount > 0 && (
-          <p className="rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
-            {lowStockCount} {lowStockCount === 1 ? "peça" : "peças"} com estoque baixo
-          </p>
-        )}
-
+      {lowStockCount > 0 && (
         <button
-          onClick={() => setShowNewProduct((v) => !v)}
-          className="rounded bg-gray-900 p-2 text-sm font-medium text-white"
+          type="button"
+          onClick={() => setLowStockOnly(true)}
+          className="flex items-center gap-2 rounded border border-warn bg-warn-bg px-3 py-2 text-left text-sm text-warn focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
-          {showNewProduct ? "Cancelar" : "Novo produto"}
+          <WarningIcon className="h-4 w-4 shrink-0" />
+          {lowStockCount} {lowStockCount === 1 ? "peça" : "peças"} com estoque baixo (
+          {LOW_STOCK_THRESHOLD} ou menos) — clique para filtrar
         </button>
-        {showNewProduct && (
-          <NewProductForm
-            onCreated={(item) => {
-              setProducts((prev) => (prev ? [...prev, item] : [item]));
-              setShowNewProduct(false);
-            }}
-          />
+      )}
+
+      {/*
+        O foco volta ao botão que abriu o modal, então o aviso não é lido
+        sozinho por leitor de tela: `role="status"` o anuncia. A região vive
+        sempre no DOM e só o conteúdo é condicional — região criada junto com
+        o texto não é anunciada de forma confiável.
+      */}
+      <div
+        role="status"
+        className={
+          feedback
+            ? `flex items-center justify-between gap-3 rounded border px-3 py-2 text-sm ${
+                feedback.tone === "ok"
+                  ? "border-ok bg-ok-bg text-ok"
+                  : "border-danger bg-danger-bg text-danger"
+              }`
+            : "sr-only"
+        }
+      >
+        {feedback && (
+          <>
+            <span>{feedback.text}</span>
+            <button
+              type="button"
+              onClick={() => setFeedback(null)}
+              aria-label="Fechar aviso"
+              className="shrink-0 rounded p-0.5 hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              <CloseIcon className="h-4 w-4" />
+            </button>
+          </>
         )}
+      </div>
 
-        {listError && <p className="text-sm text-red-600">{listError}</p>}
+      {listError && (
+        <p className="rounded border border-danger bg-danger-bg px-3 py-2 text-sm text-danger">
+          {listError}
+        </p>
+      )}
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-500">
-                <th className="p-2">Peça</th>
-                <th className="p-2">Código</th>
-                <th className="p-2">Preço</th>
-                <th className="p-2">Custo</th>
-                <th className="p-2">Margem</th>
-                <th className="p-2">Estoque</th>
-                <th className="p-2">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products?.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="p-3 text-sm text-gray-500">
-                    Nenhum produto encontrado.
-                  </td>
-                </tr>
-              )}
-              {products?.map((item) => (
-                <Fragment key={item.variantId}>
-                  <tr className="border-b border-gray-100">
-                    <td className="p-2 font-medium">{item.name}</td>
-                    <td className="p-2 text-gray-700">{item.sku ?? "—"}</td>
-                    <td className="p-2 text-gray-700">{formatCurrency(item.price)}</td>
-                    <td className="p-2 text-gray-700">{formatCurrency(item.cost)}</td>
-                    <td className="p-2 text-gray-700">{formatPercent(item.margin)}</td>
-                    <td className="p-2">
-                      <StockBadge stock={item.stock} />
-                    </td>
-                    <td className="p-2">
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() =>
-                            setOpenEditFor((current) =>
-                              current === item.variantId ? null : item.variantId,
-                            )
-                          }
-                          className="shrink-0 rounded border border-gray-300 p-2 text-xs font-medium"
-                        >
-                          {openEditFor === item.variantId ? "Cancelar" : "Editar"}
-                        </button>
-                        <button
-                          onClick={() =>
-                            setOpenMovementFor((current) =>
-                              current === item.variantId ? null : item.variantId,
-                            )
-                          }
-                          className="shrink-0 rounded border border-gray-300 p-2 text-xs font-medium"
-                        >
-                          {openMovementFor === item.variantId
-                            ? "Cancelar"
-                            : "Registrar movimentação"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {openEditFor === item.variantId && (
-                    <tr className="border-b border-gray-100">
-                      <td colSpan={7} className="p-2">
-                        <EditProductForm
-                          item={item}
-                          onSaved={(updated) => {
-                            setProducts((prev) =>
-                              prev
-                                ? prev.map((p) =>
-                                    p.variantId === updated.variantId ? updated : p,
-                                  )
-                                : prev,
-                            );
-                            setOpenEditFor(null);
-                          }}
-                        />
-                      </td>
-                    </tr>
-                  )}
-                  {openMovementFor === item.variantId && (
-                    <tr className="border-b border-gray-100">
-                      <td colSpan={7} className="p-2">
-                        <MovementForm
-                          variantId={item.variantId}
-                          onSuccess={(result) => {
-                            setProducts((prev) =>
-                              prev
-                                ? prev.map((p) =>
-                                    p.variantId === item.variantId
-                                      ? { ...p, stock: result.stock }
-                                      : p,
-                                  )
-                                : prev,
-                            );
-                          }}
-                        />
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </main>
+      <ProductTable
+        items={filteredItems}
+        loadState={loadState}
+        hasAnyProduct={(products?.length ?? 0) > 0}
+        hasActiveFilters={hasActiveFilters || query.trim() !== ""}
+        onClearFilters={clearFilters}
+        categories={categoriesWithCount}
+        onUpdated={upsertProduct}
+        onFeedback={(text, tone) => setFeedback({ tone, text })}
+        highlightedVariantId={highlightedVariantId}
+      />
+    </AppShell>
   );
 }
