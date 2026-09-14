@@ -44,6 +44,7 @@ model Tenant {
   memberships         Membership[]
   products            Product[]
   variants            Variant[]
+  categories          Category[]
   locations           Location[]
   inventoryLevels     InventoryLevel[]
   stockMovements      StockMovement[]
@@ -176,18 +177,51 @@ enum ProductStatus {
   DRAFT
 }
 
+/// Lista de categorias que o Lucas gerencia (spec estoque-interface-parte-1.md
+/// §5.1) — não é texto livre no produto. Sem exclusão: só criar e renomear.
+///
+/// ⚠️ ÍNDICE MANUAL NÃO GERENCIADO PELO PRISMA — CUIDADO EM MIGRATIONS FUTURAS:
+/// a migration `20260913203624_add_category` cria à mão, ALÉM do que este
+/// schema descreve, um índice único funcional
+/// `category_tenant_id_name_normalized_key` em
+/// `("tenant_id", lower(btrim("name")))` — é a defesa contra nome de
+/// categoria duplicado ignorando maiúsculas/espaços (ex. "Calça" vs "calça "),
+/// inclusive sob corrida real. Como o Prisma não sabe que esse índice existe
+/// (não há sintaxe de índice de expressão no schema), qualquer
+/// `prisma migrate dev`/`diff` futuro que mexa nesta tabela pode gerar um
+/// `DROP INDEX "category_tenant_id_name_normalized_key"` para "corrigir" a
+/// divergência entre schema e banco — SEM avisar que está derrubando essa
+/// defesa. Antes de aplicar qualquer migration nova que toque `category`,
+/// leia o SQL gerado e confirme que esse índice não está sendo removido.
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@map("category")
+}
+
 /// Espelha o produto da Nuvemshop. `nuvemshopProductId` é nullable: um produto
 /// pode nascer no nosso app antes de existir lá.
 model Product {
   id                 String        @id @default(uuid()) @db.Uuid
   tenantId           String        @map("tenant_id") @db.Uuid
   nuvemshopProductId BigInt?       @map("nuvemshop_product_id")
+  categoryId         String?       @map("category_id") @db.Uuid
   name               String
   status             ProductStatus @default(ACTIVE)
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @updatedAt @map("updated_at")
 
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id])
   variants Variant[]
 
   @@unique([tenantId, nuvemshopProductId])
